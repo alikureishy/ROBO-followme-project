@@ -63,10 +63,10 @@ def get_mask_files(path, subset_name):
     return sorted(glob.glob(os.path.join(path, subset_name, 'masks', '*.png')))
 
 def get_pred_files(subset_name):
-    return sorted(glob.glob(os.path.join('..','data', 'runs', subset_name, '*.png')))
+    return sorted(glob.glob(os.path.join('..','data', 'inferences', subset_name, '*.png')))
 
 def get_im_file_sample(grading_data_dir_name, subset_name, pred_dir_suffix=None, n_file_names=10):
-    path = os.path.join('..', 'data', grading_data_dir_name)
+    path = os.path.join('..', 'data', 'masks', grading_data_dir_name)
     ims = np.array(get_im_files(path, subset_name)) 
     masks = np.array(get_mask_files(path, subset_name))  
     

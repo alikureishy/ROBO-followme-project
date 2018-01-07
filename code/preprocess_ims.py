@@ -35,11 +35,9 @@ import sys
 import numpy as np
 from scipy import misc
 
-
 def make_dir_if_not_exist(path):
     if not os.path.exists(path):
         os.makedirs(path)
-
 
 def get_mask_files(image_files):
     is_cam2 = lambda x: x.find('cam2_') != -1
@@ -50,7 +48,6 @@ def get_mask_files(image_files):
     cam3 = sorted(list(filter(is_cam3, image_files)))
     cam4 = sorted(list(filter(is_cam4, image_files)))
     return cam2, cam3, cam4
-
 
 def move_labels(input_folder, output_folder, fold_id):
     files = glob.glob(os.path.join(input_folder, '*', '*.png'))
