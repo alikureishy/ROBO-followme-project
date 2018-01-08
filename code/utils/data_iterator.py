@@ -34,9 +34,9 @@ from scipy import misc
 import numpy as np
 from tensorflow.contrib.keras.python.keras.preprocessing.image import Iterator
 from tensorflow.contrib.keras.python.keras import backend as K
+import itertools
 
-
-def preprocess_input(x):
+def standardize(x):
     x = x/255.
     x = x-0.5
     x = x*2.
@@ -85,18 +85,42 @@ def shift_and_pad_augmentation(image, image_mask):
 
 
 class BatchIteratorSimple(Iterator):
-    def __init__(self, data_folder, batch_size, image_shape,
-            num_classes=3, training=True, shuffle=True, seed=None, shift_aug=False):
+    def __init__(self, data_folders, batch_size, image_shape,
+            num_classes=3, training=True, shuffle=True, seed=None, shift_aug=False, filter_callback=None, preprocess_callback=None):
 
+        print ("Initializing the batch iterator...")
         self.num_classes = num_classes
         self.shift_aug = shift_aug
-        self.data_folder = data_folder
+        self.data_folders = data_folders
         self.batch_size = batch_size
         self.training = training
         self.image_shape = tuple(image_shape)
+        self.preprocessor = preprocess_callback
 
-        im_files = sorted(glob(os.path.join(data_folder, 'images', '*.jpeg')))
-        mask_files = sorted(glob(os.path.join(data_folder, 'masks', '*.png')))
+        pre_im_files = []
+        pre_mask_files = []
+        for folder in self.data_folders:
+            pre_im_files = pre_im_files + glob(os.path.join(folder, 'images', '*.jpeg'))
+            pre_mask_files = pre_mask_files + glob(os.path.join(folder, 'masks', '*.png'))
+        print ("Read {} image files.".format(len(pre_im_files)))
+        
+        # filtering (only if in training mode)
+        im_files = []
+        mask_files = []
+        if self.training and filter_callback is not None:
+            for i, (f,m) in enumerate(zip(pre_im_files, pre_mask_files)):
+                if filter_callback(f, m) is False:
+                    print("x", end="")
+                    im_files.append(f)
+                    mask_files.append(m)
+                else:
+                    print("-", end="")
+            print(".")
+        else:
+            im_files = pre_im_files
+            mask_files = pre_mask_files
+        im_files = sorted(im_files)
+        mask_files = sorted(mask_files)
 
         if len(im_files) == 0:
             raise ValueError('No image files found, check your image diractories')
@@ -140,25 +164,26 @@ class BatchIteratorSimple(Iterator):
                 image = misc.imresize(image, self.image_shape)
 
             if not self.training:
-                image = preprocess_input(image.astype(np.float32))
+                image = standardize(image.astype(np.float32))
                 batch_x[e,:,:,:] = image
                 continue
-
-            else:
+            else: # if training:
                 gt_image = misc.imread(file_tuple[1]).clip(0,1) 
                 if gt_image.shape[0] != self.image_shape[0]:
                     gt_image = misc.imresize(gt_image, self.image_shape)
 
                 #if self.shift_aug:
                 #    image, gt_image = shift_and_pad_augmentation(image, gt_image)
+                image = standardize(image.astype(np.float32))
 
-                image = preprocess_input(image.astype(np.float32))
+                # Do any pre-processing, if required. This is only relevant for training
+                if self.preprocessor is not None:
+                    image, gt_image = self.preprocessor(image, gt_image)
+
                 batch_x[e,:,:,:] = image
                 batch_y[e,:,:,:] = gt_image
 
-
         if not self.training:
             return batch_x
-
         else:
             return batch_x, batch_y
