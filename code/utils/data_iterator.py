@@ -110,12 +110,12 @@ class BatchIteratorSimple(Iterator):
         if self.training and filter_callback is not None:
             for i, (f,m) in enumerate(zip(pre_im_files, pre_mask_files)):
                 if filter_callback(f, m) is False:
-                    print("x", end="")
+#                    print("x", end="")
                     im_files.append(f)
                     mask_files.append(m)
-                else:
-                    print("-", end="")
-            print(".")
+#                else:
+#                    print("-", end="")
+#            print(".")
         else:
             im_files = pre_im_files
             mask_files = pre_mask_files

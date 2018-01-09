@@ -58,7 +58,7 @@ def write_predictions_grade_set(model, grading_dir_name, subset_name, out_folder
         image = misc.imread(name)
         if image.shape[0] != image_shape:
              image = misc.imresize(image, (image_shape, image_shape, 3))
-        image = data_iterator.preprocess_input(image.astype(np.float32))
+        image = data_iterator.standardize(image.astype(np.float32))
         pred = model.predict_on_batch(np.expand_dims(image, 0))
         base_name = os.path.basename(name).split('.')[0]
         base_name = base_name + '_prediction.png'

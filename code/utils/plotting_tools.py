@@ -100,7 +100,7 @@ def plot_keras_model(model, fig_name):
     keras.utils.vis_utils.plot_model(model, os.path.join(base_path, fig_name +'_with_shapes'), show_shapes=True)
 
 
-def train_val_curve(train_loss, val_loss=None):
+def train_val_curve(train_loss, val_loss=None, output_file=None):
     train_line = plt.plot(train_loss, label='train_loss')
     train_patch = mpatches.Patch(color='blue',label='train_loss')
     handles = [train_patch]
@@ -113,6 +113,8 @@ def train_val_curve(train_loss, val_loss=None):
     plt.title('training curves') 
     plt.ylabel('loss')
     plt.xlabel('epochs')
+    if output_file is not None:
+        plt.gcf().savefig(output_file)
     plt.show()
 
 # modified from the BaseLogger in file linked below
@@ -120,13 +122,19 @@ def train_val_curve(train_loss, val_loss=None):
 class LoggerPlotter(keras.callbacks.Callback):
     """Callback that accumulates epoch averages of metrics.
     and plots train and validation curves on end of epoch
+
+        'image_path_template' must have a '{}' for where the epoch
+        is to be inserted.
     """
-    def __init__(self):
+    def __init__(self, image_path_template=None):
         self.hist_dict = {'loss':[], 'val_loss':[]}
+        self.image_path_template = image_path_template
+        self.epoch_number = -1
         
     def on_epoch_begin(self, epoch, logs=None):
         self.seen = 0
         self.totals = {}
+        self.epoch_number += 1
 
     def on_batch_end(self, batch, logs=None):
         logs = logs or {}
@@ -138,9 +146,11 @@ class LoggerPlotter(keras.callbacks.Callback):
                 self.totals[k] += v * batch_size
             else:
                 self.totals[k] = v * batch_size
-        
 
     def on_epoch_end(self, epoch, logs=None):
+        output_file = None
+        if self.image_path_template is not None:
+            output_file = self.image_path_template.format(self.epoch_number)
         if logs is not None:
             for k in self.params['metrics']:
                 if k in self.totals:
@@ -150,6 +160,7 @@ class LoggerPlotter(keras.callbacks.Callback):
             self.hist_dict['loss'].append(logs['loss'])
             if 'val_loss' in self.params['metrics']:
                 self.hist_dict['val_loss'].append(logs['val_loss'])
-                train_val_curve(self.hist_dict['loss'], self.hist_dict['val_loss'])
+                train_val_curve(self.hist_dict['loss'], self.hist_dict['val_loss'],
+                                output_file=output_file)
             else:
-                train_val_curve(self.hist_dict['loss'])
+                train_val_curve(self.hist_dict['loss'], output_file=output_file)
