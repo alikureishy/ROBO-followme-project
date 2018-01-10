@@ -126,10 +126,14 @@ class LoggerPlotter(keras.callbacks.Callback):
         'image_path_template' must have a '{}' for where the epoch
         is to be inserted.
     """
-    def __init__(self, image_path_template=None):
+    def __init__(self, model=None, arch_file_path=None, image_path_template=None):
         self.hist_dict = {'loss':[], 'val_loss':[]}
         self.image_path_template = image_path_template
         self.epoch_number = -1
+        self.model = model
+        if self.model is not None:
+            self.model_arch_json = model.to_json()
+        self.arch_file_path = arch_file_path
         
     def on_epoch_begin(self, epoch, logs=None):
         self.seen = 0
@@ -164,3 +168,10 @@ class LoggerPlotter(keras.callbacks.Callback):
                                 output_file=output_file)
             else:
                 train_val_curve(self.hist_dict['loss'], output_file=output_file)
+
+        # Unfortunately this same step will be repeated each time we end an epoch
+        # because there's no way to know which the last epoch will be
+        if self.model is not None and self.arch_file_path is not None:
+            with open(self.arch_file_path, "w+") as arch_file:
+                arch_file.write(self.model_arch_json)
+                arch_file.close()
