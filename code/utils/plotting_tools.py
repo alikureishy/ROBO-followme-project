@@ -30,6 +30,7 @@
 import os
 import glob
 import numpy as np
+import json
 import matplotlib.patches as mpatches 
 import matplotlib.pyplot as plt
 from tensorflow.contrib.keras.python import keras
@@ -173,5 +174,4 @@ class LoggerPlotter(keras.callbacks.Callback):
         # because there's no way to know which the last epoch will be
         if self.model is not None and self.arch_file_path is not None:
             with open(self.arch_file_path, "w+") as arch_file:
-                arch_file.write(self.model_arch_json)
-                arch_file.close()
+                json.dump(self.model_arch_json, arch_file)
