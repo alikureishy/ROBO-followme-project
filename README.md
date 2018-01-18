@@ -86,30 +86,44 @@ A simulator was provided with the project to merely collect 'real-world' data in
 
 ## Network Architecture
 
-This is a Deep Neural Network consisting, at a high level, of an Encoder, followed by a Decoder, with a 1x1 convolution in between.
+Fully Convolutional networks are well suited for segmentation tasks.
 
-Here is a diagram of the architecture:
+...
+...
+...
+
+Here is a diagram of the architecture I finally settled on:
 
 ### Encoder Section
 
 
 ### 1x1 Convolution
 
+
 ### Decoder Section
-
-### Training Hooks (Callbacks)
-
-#### Preexisting
-Here are some callbacks I used to simplify the training bookkeeping:
-- _keras.callbacks.ModelCheckpoint_: To checkpoint the model after an epoch only if val_loss improves.
-- _keras.callbacks.EarlyStopping_: To stop the training if a certain number of epochs have passed without any improvement in val_loss
-
-#### Custom
-Here is a custom callback that was implemented for special handling at the end of an epoch
-- _plotting_tools.LoggerPlotter_: At the end of every epoch, this plots a graph of the val_loss history before that epoch. It also saves that plot in a folder created for that particular training run.
 
 
 ## Training
+
+The immediate goal of this project was to satisfy the 40% IoU metric required, which is the yardstick I used when evaluating various hyper parameters during training. Therefore, it is worth noting that I did not explore optimizations to the network beyond what was needed to reach the requisite IoU score. Possible optimizations are discussed at the end of this document.
+
+### Hyperparameter Tuning
+
+In the following sections, I discuss the hyperparameters I tweaked, before I settled on the 'winning' network architecture and accompanying paramters.
+
+#### Learning Rate
+
+I started with a learning rate of 0.01, which was too high because the training and validation losses fluctuated a lot during training. I reduced that to 0.001, which proved to be sufficient to produce a smooth asymptotic training loss curve, and a reasonably smooth validation loss curve too, before stopping the training.
+
+#### Batch Size
+On my local machine, where I started the training attempts, a batch size of 32 seemed more appropriate given the memory constraints of the system. I could theoretically try increasing the batch size when I moved over to AWS, but I did not attempt that.
+
+#### Network Depth (# of encoding/decoding layers)
+
+Even with 5 layers and filters ranging in depth from 32 to 512, the network did not seem to overfit to the training set. This was likely because of batch normalization being applied after every convolution layer in the network.
+
+#### Number of Epochs
+Initially, I kept the training to only ~20-25 epochs, which consistently fell short of the target IoU metric of 40%. I tried increasing the depth of the network (adding additional encoding and decoding layers) but that did not help.
 
 ### AWS
 
@@ -129,6 +143,19 @@ This goes without saying. Nevertheless, on an EC2 instance (as mentioned above),
 ```
     jupyter notebook --ip='*' --port=8888 --no-browser
 ```
+
+### Training Hooks (Callbacks)
+
+#### Preexisting
+Here are some callbacks I used to simplify the training bookkeeping:
+- _keras.callbacks.ModelCheckpoint_: To checkpoint the model after an epoch only if val_loss improves.
+- _keras.callbacks.EarlyStopping_: To stop the training if a certain number of epochs have passed without any improvement in val_loss
+
+#### Custom
+Here is a custom callback that was implemented for special handling at the end of an epoch
+- _plotting_tools.LoggerPlotter_: At the end of every epoch, this plots a graph of the val_loss history before that epoch. It also saves that plot in a folder created for that particular training run.
+
+
 
 ## Performance
 
@@ -204,6 +231,10 @@ I have mostly focused on a kernel of size 3 in this project. A kernel of 5 not o
 
 It is conceivable that using different sized kernels together might help find more relevant features for the segmentation task. The inception network targets just that scenario. If each encoder layer were an inception network, combining kernels of sizes 3, 5 and 7, in addition to a 1x1 convolution itself, as well as a maxpooling layer, we could achieve better accuracy. The degradation in performance from adding such large kernels can be worked around by inserting a 1x1 convolution to reduce the dimensionality of the prior layer before it is convolved with the associated kernel.
 
+### Attempting different learning rates and batch sizes
 
+I settled on a batch size of 32 after trying larger batches on my laptop. This could potentially be increased when training is done on the GPU instances on AWS. I did not attempt this, but it is an option worth exploring in the future.
+
+I could also try reducing the learning rate even further, but given the success of the learning rate of 0.001, I did not try others.
 
 ## References
