@@ -1,7 +1,37 @@
+![Overview](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/image-2.png)
+
+<!-- Side-by-side images:
+        ![alt-text-1](image1.png "title-1") ![alt-text-2](image2.png "title-2")
+-->
+
 # Image Segmentation - Person Detection (Follow-Me Project)
 
-## Overview
+## Table of Contents
 
+- [Overview](#overview)
+- [Components](#components)
+	- [Simulation Environment](#simulation-environment)
+	- [Training Pipeline](#training-pipeline)
+		- [Sample Collection](#sample-collection)
+		- [Feature Extraction](#feature-extraction)
+		- [Training](#training)
+	- [Perception Pipeline](#perception-pipeline)
+		- [RGBD Camera View](#rgbd-camera-view)
+		- [Downsampling](#downsampling)
+		- [Cleaning](#cleaning)
+		- [Passthrough Filter](#passthrough-filter)
+		- [Segmentation](#segmentation)
+		- [Clustering](#clustering)
+		- [Classification](#classification)
+		- [Labeling](#labeling)
+- [Debugging](#debugging)
+- [Results](#results)
+	- [World 1](#world-1)
+	- [World 2](#world-2)
+	- [World 3](#world-3)
+- [Conclusions](#conclusions)
+
+## Overview
 This is an Image Segmentation project built as part of Udacity's 'Robotics Nanodegree Term 1' curriculum. It involves training a deep neural network using various mechanisms - such as Fully Convolutional Networks, Skip Connections, 1x1 Convolutions etc - to detect a person-of-interest from images captured by a Follow-Me drone, the purpose eventually being to be able to train a drone to follow-along with that person as they go jogging, walking etc. It was evaluated [https://review.udacity.com/#!/rubrics/1155/view] based on its IoU (Intersection-over-Union) performance on a provided test set.
 
 The folder hierarchy is as follows:
@@ -81,11 +111,19 @@ Here is a custom callback that was implemented for special handling at the end o
 
 ## Training
 
-Training was done on a p2.xlarge (GPU-Compute) EC2 instance on AWS, which performed brilliantly, achieving almost a 10x improvement in training time.
+### AWS
 
-AMI: Udacity Robotics Deep Learning Laboratory (ami-e4fd199e)
+Training was done on a p2.xlarge (GPU-Compute) EC2 instance on AWS, which performed brilliantly, achieving almost a 10x improvement in training time. The _Udacity Robotics Deep Learning Laboratory (ami-e4fd199e) AMI_ was used, as below:
 
-Jupyter Notebook:
+![AWS AMI](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/aws-ami.png)
+
+During training, I was able to max out the GPU usage on this machine as well, as suggested by this output from the command-line ```nvidia-smi'' command:
+
+![GPU utilization](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/gpu-utilization.png)
+
+### Jupyter Notebook Server
+
+This goes without saying. Nevertheless, on an EC2 instance (as mentioned above), the command to launch the server is:
 ```
 The jupyter notebook server was launched on the EC2 instance using this command:
     jupyter notebook --ip='*' --port=8888 --no-browser
@@ -96,6 +134,12 @@ The jupyter notebook server was launched on the EC2 instance using this command:
 ### Take # 1
 
 This was achieved with a network with 5 encoder layers and 5 decoder layers, and a 1x1 convolution between them. Filter depths varied from 32 to 512, depending on the layer, both for the encoder and decoder sections. Below is a diagram showing the evaluation of this network.
+
+Here's the graph of the val_loss as calculated over ~60 epochs for this training run:
+![Take1 - Validation Loss History](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/val-loss-history-plot-take1.png)
+
+
+### Take # 2
 
 
 
