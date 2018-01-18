@@ -133,14 +133,48 @@ The jupyter notebook server was launched on the EC2 instance using this command:
 
 ### Take # 1
 
-This was achieved with a network with 5 encoder layers and 5 decoder layers, and a 1x1 convolution between them. Filter depths varied from 32 to 512, depending on the layer, both for the encoder and decoder sections. Below is a diagram showing the evaluation of this network.
+This was achieved with a network with 4 encoder layers and 4 decoder layers, and a 1x1 convolution between them. Filter depths varied from 32 to 256, depending on the layer, both for the encoder and decoder sections. Below is a diagram of the network:
+![Take1 - Network Diagram](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-network.png)
+
+
+And below is a diagram showing the evaluation of this network:
+![Take1 - IoU Evaluation](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-evaluation.png)
 
 Here's the graph of the val_loss as calculated over ~60 epochs for this training run:
-![Take1 - Validation Loss History](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/val-loss-history-plot-take1.png)
+![Take1 - Validation Loss History](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-val-loss-history-plot.png)
 
+And here are some of the segmentation outputs of the network:
+
+Hero close by:
+![Take1 - Hero Close By](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-close.png)
+
+No hero:
+![Take1 - No Hero](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-no-hero.png)
+
+Hero far away:
+![Take1 - Hero Far Away](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-far.png)
 
 ### Take # 2
 
+This was a deeper network than in take # 1, and consequently its filter depths varied from 32 to 512, depending on the layer, both for the encoder and decoder sections. Below is a diagram of the network.
+![Take2 - Network Diagram](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-network.png)
+
+And below is a diagram showing the evaluation of this network:
+![Take2 - IoU Evaluation](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-evaluation.png)
+
+Here's the graph of the val_loss as calculated over ~60 epochs for this training run:
+![Take2 - Validation Loss History](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-val-loss-history-plot.png)
+
+And here are some of the segmentation outputs of the network:
+
+Hero close by:
+![Take2 - Hero Close By](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-hero-close.png)
+
+No hero:
+![Take2 - No Hero](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-no-hero.png)
+
+Hero far away:
+![Take2 - Hero Far Away](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-hero-far.png)
 
 
 ## Assessments
