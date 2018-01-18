@@ -103,7 +103,20 @@ This was achieved with a network with 5 encoder layers and 5 decoder layers, and
 
 ## Future Improvements
 
-Areas of future improvement:
-- I have achieved the requisite rubric [https://review.udacity.com/#!/rubrics/1155/view] for this project by using the provided data itself, without any additional data generated from the simulator. That, however, would likely be necessary to improve upon the performance of the DNN (Deep Neural Network).
+To improve upon this network further, here are some additional tasks to be attempted.
+
+### Collecting more data
+
+I have achieved the requisite rubric [https://review.udacity.com/#!/rubrics/1155/view] for this project by using the provided data itself, without any additional data generated from the simulator. However, collecting more data would likely be necessary to push the IoU higher for this project.
+
+### Larger kernels with dimensionality reduction
+
+I have mostly focused on a kernel of size 3 in this project. A kernel of 5 not only deteriorated accuracy but also performance of the network during both training and inference. One way to optimize convolution with such a kernel is to insert a 1x1 convolution before it that reduces the dimensionality of the prior layer. This reduction in dimensionality dramatically reduces the number of trainable parameters when convolving the larger sized kernels.
+
+### Converting to Inception layers
+
+It is conceivable that using different sized kernels together might help find more relevant features for the segmentation task. The inception network targets just that scenario. If each encoder layer were an inception network, combining kernels of sizes 3, 5 and 7, in addition to a 1x1 convolution itself, as well as a maxpooling layer, we could achieve better accuracy. The degradation in performance from adding such large kernels can be worked around by inserting a 1x1 convolution to reduce the dimensionality of the prior layer before it is convolved with the associated kernel.
+
+
 
 ## References
