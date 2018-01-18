@@ -119,65 +119,74 @@ Training was done on a p2.xlarge (GPU-Compute) EC2 instance on AWS, which perfor
 
 During training, I was able to max out the GPU usage on this machine as well, as suggested by this output from the command-line ```nvidia-smi'' command:
 
-![GPU utilization](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/gpu-utilization.png)
+<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/gpu-utilization.png" width="900" height="250">
+
+<!--![GPU utilization](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/gpu-utilization.png)-->
 
 ### Jupyter Notebook Server
 
-This goes without saying. Nevertheless, on an EC2 instance (as mentioned above), the command to launch the server is:
+This goes without saying. Nevertheless, on an EC2 instance (as mentioned above), the command to launch the Jupyter server is:
 ```
-The jupyter notebook server was launched on the EC2 instance using this command:
     jupyter notebook --ip='*' --port=8888 --no-browser
 ```
 
 ## Performance
 
+Thanks to AWS, I was able to pretty quickly train the network over ~60 epochs, which allowed me to experiment with different network topologies. Below are two different topologies that I experimented with.
+
+*Common Hyperparameters*
+These hyperparameters were common to both topologies that were explored.
+- Learning Rate = 0.001
+- Train Batch Size = 32
+- Batches Per Epoch: 130
+- Validation Batch Size = 32
+- Batches per Validation: 25
+
 ### Take # 1
 
-This was achieved with a network with 4 encoder layers and 4 decoder layers, and a 1x1 convolution between them. Filter depths varied from 32 to 256, depending on the layer, both for the encoder and decoder sections. Below is a diagram of the network:
-![Take1 - Network Diagram](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-network.png)
+This was achieved using a network with 4 encoder layers and 4 decoder layers, and a 1x1 convolution between them. Filter depths varied from 32 to 256, depending on the layer, both for the encoder and decoder sections. The encoding and decoding layers were essentiallly mirror images of each other. The encoding layers included just one separable convolution. Each decoding layer included an upsampling layer (doubling the image size in both x and y dimensions), followed by a concatenation of a skip connection input from its corresponding encoding layer, followed then by 2 separable convolution layers. I ran the training for ~60 epochs, though the network had almost fully saturated near ~30 epochs, as you can see in the validation loss graph below. Nevertheless, it appears there was still some marginal improvement going up to 60 epochs, which helped push the IoU score above 0.40.
 
-
-And below is a diagram showing the evaluation of this network:
-![Take1 - IoU Evaluation](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-evaluation.png)
-
-Here's the graph of the val_loss as calculated over ~60 epochs for this training run:
 ![Take1 - Validation Loss History](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-val-loss-history-plot.png)
 
-And here are some of the segmentation outputs of the network:
+#### Network Diagram
+![Take1 - Network Diagram](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-network.png)
 
-Hero close by:
+#### Network Evaluation
+![Take1 - IoU Evaluation](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-evaluation.png)
+
+#### Segmentation Outputs
+
+*Hero close by*
 ![Take1 - Hero Close By](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-close.png)
 
-No hero:
+*No hero*
 ![Take1 - No Hero](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-no-hero.png)
 
-Hero far away:
+*Hero far away*
 ![Take1 - Hero Far Away](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-far.png)
 
 ### Take # 2
 
-This was a deeper network than in take # 1, and consequently its filter depths varied from 32 to 512, depending on the layer, both for the encoder and decoder sections. Below is a diagram of the network.
-![Take2 - Network Diagram](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-network.png)
+This was a deeper network (5 encoding layers and 5 decoding layers) than in take # 1, and consequently its filter depths varied from 32 to 512, depending on the layer, both for the encoder and decoder sections. The encoding and decoding layers were mirror images of each other. The encoding layers included just one separable convolution. Each decoding layer included an upsampling layer (doubling the image size in both x and y dimensions), followed by a concatenation of a skip connection input from its corresponding encoding layer, followed then by 3 separable convolution layers. I ran the training for ~60 epochs, though the network had almost fully saturated near ~30 epochs, , as you can see in the validation loss graph below. Nevertheless, it appears there was still some marginal improvement going up to 60 epochs, which helped push the IoU metric above 0.40.
 
-And below is a diagram showing the evaluation of this network:
-![Take2 - IoU Evaluation](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-evaluation.png)
-
-Here's the graph of the val_loss as calculated over ~60 epochs for this training run:
 ![Take2 - Validation Loss History](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-val-loss-history-plot.png)
 
-And here are some of the segmentation outputs of the network:
+#### Network Diagram
+![Take2 - Network Diagram](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-network.png)
 
-Hero close by:
+#### Network Evaluation
+![Take2 - IoU Evaluation](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-evaluation.png)
+
+#### Segmentation Outputs
+
+*Hero close by*
 ![Take2 - Hero Close By](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-hero-close.png)
 
-No hero:
+*No hero*
 ![Take2 - No Hero](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-no-hero.png)
 
-Hero far away:
+*Hero far away*
 ![Take2 - Hero Far Away](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-hero-far.png)
-
-
-## Assessments
 
 ## Future Improvements
 
