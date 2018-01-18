@@ -41,7 +41,7 @@ There are three types of images included as training data:
 - _Images containing the hero far away_: For helping a drone get back-on-track in case it falls behind
 - _Images containing no hero at all_: Presumably to have the drone remain stationary and patrol its surroundings until one of the above two images is encountered
 
-## Expected Output
+### Expected Output
 
 The objective was to train the network to output a segmented image of the same size as the original, containing 3 classes of pixels:
 - _Hero: (Blue pixels)_ These represent the POI (Person-Of-Interest, or "hero"): Identified with blue pixels
@@ -50,7 +50,7 @@ The objective was to train the network to output a segmented image of the same s
 
 Such a segmentation would presumably provide the drone the coordinates of the object that it is to follow behind. Ultimately this could be used in an actual drone implementation, but would of course require various other components to fully implement, and is as such outside the scope of this project.
 
-## Simulator
+### Simulator
 
 A simulator was provided with the project to merely collect 'real-world' data in the event that the data included with the project was not sufficient. This was not used in this project however, as the provided data proved sufficient to satisfy the rubric [https://review.udacity.com/#!/rubrics/1155/view].
 
@@ -62,13 +62,42 @@ Here is a diagram of the architecture:
 
 ### Encoder Section
 
+
 ### 1x1 Convolution
 
 ### Decoder Section
 
+### Training Hooks (Callbacks)
+
+#### Preexisting
+Here are some callbacks I used to simplify the training bookkeeping:
+- _keras.callbacks.ModelCheckpoint_: To checkpoint the model after an epoch only if val_loss improves.
+- _keras.callbacks.EarlyStopping_: To stop the training if a certain number of epochs have passed without any improvement in val_loss
+
+#### Custom
+Here is a custom callback that was implemented for special handling at the end of an epoch
+- _plotting_tools.LoggerPlotter_: At the end of every epoch, this plots a graph of the val_loss history before that epoch. It also saves that plot in a folder created for that particular training run.
+
+
+## Training
+
+Training was done on a p2.xlarge (GPU-Compute) EC2 instance on AWS, which performed brilliantly, achieving almost a 10x improvement in training time.
+
+AMI: Udacity Robotics Deep Learning Laboratory (ami-e4fd199e)
+
+Jupyter Notebook:
+```
+The jupyter notebook server was launched on the EC2 instance using this command:
+    jupyter notebook --ip='*' --port=8888 --no-browser
+```
+
 ## Performance
 
-IoU Achieved: 0.416
+### Take # 1
+
+This was achieved with a network with 5 encoder layers and 5 decoder layers, and a 1x1 convolution between them. Filter depths varied from 32 to 512, depending on the layer, both for the encoder and decoder sections. Below is a diagram showing the evaluation of this network.
+
+
 
 ## Assessments
 
