@@ -105,7 +105,7 @@ Here is a diagram of the architecture I finally settled on:
 
 ## Training
 
-The immediate goal of this project was to satisfy the 40% IoU metric required, which is the yardstick I used when evaluating various hyper parameters during training. Therefore, it is worth noting that I did not explore optimizations to the network beyond what was needed to reach the requisite IoU score. Possible optimizations are discussed at the end of this document.
+The immediate goal of this project was to satisfy the 40% IoU metric required, which is the yardstick I used when evaluating various hyper parameters during training. Therefore, it is worth noting that I did not explore optimizations to the network beyond what was needed to reach the requisite IoU score. Possible optimizations are discussed at the end of this document. Furthermore, I tuned the hyperparameters manually, though I could have used tools like TensorBoard to compare various permutations of hyperparameters.
 
 ### Hyperparameter Tuning
 
@@ -117,6 +117,10 @@ I started with a learning rate of 0.01, which was too high because the training 
 
 #### Batch Size
 On my local machine, where I started the training attempts, a batch size of 32 seemed more appropriate given the memory constraints of the system. I could theoretically try increasing the batch size when I moved over to AWS, but I did not attempt that.
+
+#### Optimizer
+
+I started with an Adam optimizer but later settled on _Nadam_ based on input from fellow students on Slack. I did not however notice a substantial enough difference between the two.
 
 #### Network Depth (# of encoding/decoding layers)
 
@@ -135,8 +139,6 @@ During training, I was able to max out the GPU usage on this machine as well, as
 
 <img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/gpu-utilization.png" width="900" height="250">
 
-<!--![GPU utilization](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/gpu-utilization.png)-->
-
 ### Jupyter Notebook Server
 
 This goes without saying. Nevertheless, on an EC2 instance (as mentioned above), the command to launch the Jupyter server is:
@@ -154,8 +156,6 @@ Here are some callbacks I used to simplify the training bookkeeping:
 #### Custom
 Here is a custom callback that was implemented for special handling at the end of an epoch
 - _plotting_tools.LoggerPlotter_: At the end of every epoch, this plots a graph of the val_loss history before that epoch. It also saves that plot in a folder created for that particular training run.
-
-
 
 ## Performance
 
@@ -231,10 +231,15 @@ I have mostly focused on a kernel of size 3 in this project. A kernel of 5 not o
 
 It is conceivable that using different sized kernels together might help find more relevant features for the segmentation task. The inception network targets just that scenario. If each encoder layer were an inception network, combining kernels of sizes 3, 5 and 7, in addition to a 1x1 convolution itself, as well as a maxpooling layer, we could achieve better accuracy. The degradation in performance from adding such large kernels can be worked around by inserting a 1x1 convolution to reduce the dimensionality of the prior layer before it is convolved with the associated kernel.
 
-### Attempting different learning rates and batch sizes
+### Better Hyperparemter Tuning
 
-I settled on a batch size of 32 after trying larger batches on my laptop. This could potentially be increased when training is done on the GPU instances on AWS. I did not attempt this, but it is an option worth exploring in the future.
+I could have used TensorBoard to compare various hyperparameter permutations, but did not on account of time constraints with getting familiar with all the TensorBoard tools and quirks.
 
-I could also try reducing the learning rate even further, but given the success of the learning rate of 0.001, I did not try others.
+I settled on a batch size of 32 since that was appropriate to the memory constraints of my home use laptop. This could potentially have been increased when training was done on the GPU instances on AWS.
+
+
+
+
+
 
 ## References
