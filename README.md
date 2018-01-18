@@ -6,7 +6,7 @@ This project was built as part of Udacity's 'Robotics Nanodegree Term 1' curricu
 
 ## Components
 
-An ipython notebook contains a majority of the relevant code for the network, with various support utilities implemented in python files.
+There is an ipython notebook that contains a majority of the relevant code for the network, with various support utilities implemented in python files. Aside from this there are a data folder, a weights folder and an inferences folder.
 
 The folder hierarchy is as follows:
 ```
@@ -20,7 +20,6 @@ The folder hierarchy is as follows:
     data/
       masks/
       weights/
-      runs/
       inferences/
     docs/
     logs/                     <-- Tensorboard logs      
@@ -28,4 +27,22 @@ The folder hierarchy is as follows:
 
 ## Network Architecture
 
-The network consists of 
+This is a Deep Neural Network consisting, at a high level, of an Encoder, followed by a Decoder, with a 1x1 convolution in between.
+
+Here is a diagram of the architecture:
+
+### Encoder Section
+
+### 1x1 Convolution
+
+### Decoder Section
+
+## Performance
+
+IoU Achieved: 0.416
+
+## Assessments
+
+## Future Improvements
+
+## References
