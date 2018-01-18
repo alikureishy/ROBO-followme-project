@@ -71,6 +71,15 @@ There are three types of images included as training data:
 - _Images containing the hero far away_: For helping a drone get back-on-track in case it falls behind
 - _Images containing no hero at all_: Presumably to have the drone remain stationary and patrol its surroundings until one of the above two images is encountered
 
+#### Provided Data
+
+The data provided was not balanced across the three types of scenarios above. Here is a breakdown of the counts:
+- Hero nearby:
+- Hero far away:
+- No hero at all:
+
+So, only 37% of the images actually had the hero at all (first two categories) in them. The remaining were of the 3rd category.
+
 ### Expected Output
 
 The objective was to train the network to output a segmented image of the same size as the original, containing 3 classes of pixels:
@@ -128,6 +137,15 @@ Even with 5 layers and filters ranging in depth from 32 to 512, the network did 
 
 #### Number of Epochs
 Initially, I kept the training to only ~20-25 epochs, which consistently fell short of the target IoU metric of 40%. I tried increasing the depth of the network (adding additional encoding and decoding layers) but that did not help.
+
+#### Data Augmentation
+
+I augmented the data as follows:
+- Random (0.5) horizontal flipping of input images
+
+#### Data Filteration
+
+Filteration was also necessary for this data, in order to balance the training data across the 3 types of images (hero close by, hero far away, and no hero). The provided data 
 
 ### AWS
 
