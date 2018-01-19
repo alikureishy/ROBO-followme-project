@@ -201,7 +201,9 @@ Understandably, the decoding layer does the opposite of the encoder -- converts 
 
 To produce larger feature tensors, each decoding layer includes a _Bilinear Upsampling layer_ (doubling the image size in both x and y dimensions), followed then by a concatenation of _Skip Connections_ from its corresponding encoding layer with the same feature tensor shape, followed then by 2 _Separable Convolution Layers_.
 
-In the case of the network in question, the output of the image would be a 160x160x3 tensor. It so happens that the 3 classes above, through a softmax activation layer, could be trivially translated to the 3 RGB channels, which is why the 3 types of scenes (hero close, hero far, and no hero) were given equivalence to the 3 specific RGB colors. Had there been more classes of images, or a different color mapping, a separate conversion would have been needed to convert the softmax activations into an appropriate 3-channel RGB value in the segmented image.
+#### Output Layer
+
+In the case of the network in question, the output of the image would be a 160x160x3 tensor. It so happens that the 3 classes above, through a softmax activation layer, could be trivially translated to the 3 RGB channels, which is why the 3 types of scenes (hero close, hero far, and no hero) were given equivalence to the 3 specific RGB colors. Had there been more classes of images, or a different color mapping, a separate conversion would have been needed at the output layer, to convert the softmax activations into an appropriate 3-channel RGB value so as to produce an appropriately segmented output image.
 
 ### Comparison Of Two Architectures
 
