@@ -90,9 +90,9 @@ The objective was to train the network to output a segmented image of the same d
 - _Generic person (Green pixels)_: These are all other people in the scene who are *not* the 'hero'
 - _Surroundings (Red pixels)_: A catch-all category that includes everything else such as grass, road surfaces, buildings, sky etc.
 
-Therefore the output of the image would be 160x160x3 images. It so happens that the 3 classes above, through a softmax activation layer, could be trivially represented as the 3 input channels of RGB images, which is why the encodings above were given equivalence to those 3 specific colors. Had there been more classes of images, or a different color mapping, a separate conversion would have been needed to convert from the x-channel output image to the 3-channel RGB (or YUV etc) image.
+Therefore the output of the image would be 160x160x3 images. It so happens that the 3 classes above, through a softmax activation layer, could be trivially translated to the 3 RGB channels, which is why the encodings above were given equivalence to those 3 specific colors. Had there been more classes of images, or a different color mapping, a separate conversion would have been needed to convert the category into the appropriate 3-channel RGB pixel of the segmented image.
 
-Such a segmentation would presumably provide the drone the coordinates of the object that it is to follow behind. Ultimately this could be used in an actual drone implementation, but would of course require various other components to fully implement, and is as such outside the scope of this project.
+The drone would use the CoG of the blue pixels in the segmented image to follow behind the hero. Ultimately this DNN could therefore be used in an actual follow-me-drone implementation, but would of course require numerous other components that are outside the scope of this project.
 
 ### Simulator
 
