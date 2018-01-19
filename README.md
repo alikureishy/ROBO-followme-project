@@ -9,27 +9,34 @@
 ## Table of Contents
 
 - [Overview](#overview)
-- [Components](#components)
-	- [Simulation Environment](#simulation-environment)
-	- [Training Pipeline](#training-pipeline)
-		- [Sample Collection](#sample-collection)
-		- [Feature Extraction](#feature-extraction)
-		- [Training](#training)
-	- [Perception Pipeline](#perception-pipeline)
-		- [RGBD Camera View](#rgbd-camera-view)
-		- [Downsampling](#downsampling)
-		- [Cleaning](#cleaning)
-		- [Passthrough Filter](#passthrough-filter)
-		- [Segmentation](#segmentation)
-		- [Clustering](#clustering)
-		- [Classification](#classification)
-		- [Labeling](#labeling)
-- [Debugging](#debugging)
-- [Results](#results)
-	- [World 1](#world-1)
-	- [World 2](#world-2)
-	- [World 3](#world-3)
-- [Conclusions](#conclusions)
+- [Data](#data)
+	- [Inputs](#inputs)
+		- [Provided Data](#provided-data)
+	- [Expected Output](#expected-output)
+	- [Simulator](#simulator)
+- [Network Architecture](#network-architecture)
+	- [Encoder](#encoder)
+	- [1x1 Convolution](#1x1-convolution)
+	- [Decoder](#decoder)
+- [Training](#training)
+	- [Hyperparameter Tuning](#hyperparameter-tuning)
+		- [Learning Rate](#learning-rate)
+		- [Batch Size](#batch-size)
+		- [Optimizer](#optimizer)
+		- [Network Depth](#network-depth)
+		- [Number of Epochs](#number-of-epochs)
+		- [Data Augmentation](#data-augmentation)
+		- [Data Filteration](#data-filteration)
+		- [Batch Size](#batch-size)
+	- [AWS](#aws)
+	- [Jupyter Notebook Server](#jupyter-notebok-server)
+	- [Training Hooks](#training-hooks-(callbacks))
+		- [Preexisting](#preexisting)
+		- [Custom](#custom)
+- [Performance](#performance)
+- [Other Use Cases](#other-use-cases)
+- [Future Improvements](#future-improvements)
+- [References](#references)
 
 ## Overview
 This is an Image Segmentation project built as part of Udacity's 'Robotics Nanodegree Term 1' curriculum. It involves training a deep neural network using a Fully Convolutional Network, as well as various other mechanisms - such as Skip Connections, 1x1 Convolutions etc - to detect a person-of-interest from images captured by a Follow-Me drone, the purpose eventually being to be able to train a drone to follow-along with that person as they go jogging, walking etc. It was evaluated [https://review.udacity.com/#!/rubrics/1155/view] based on its IoU (Intersection-over-Union) performance on a provided test set.
@@ -108,13 +115,13 @@ Fully Convolutional networks are well suited for segmentation tasks.
 
 Here is a diagram of the architecture I finally settled on:
 
-### Encoder Section
+### Encoder
 
 
 ### 1x1 Convolution
 
 
-### Decoder Section
+### Decoder
 
 
 ## Training
