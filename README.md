@@ -14,10 +14,6 @@
 		- [Provided Data](#provided-data)
 	- [Expected Output](#expected-output)
 	- [Simulator](#simulator)
-- [Network Architecture](#network-architecture)
-	- [Encoder](#encoder)
-	- [1x1 Convolution](#1x1-convolution)
-	- [Decoder](#decoder)
 - [Training](#training)
 	- [Hyperparameter Tuning](#hyperparameter-tuning)
 		- [Learning Rate](#learning-rate)
@@ -33,9 +29,15 @@
 	- [Training Hooks](#training-hooks-(callbacks))
 		- [Preexisting](#preexisting)
 		- [Custom](#custom)
-- [Assessment](#assessment)
-	- [4-Layer Encoder / 4-Layer Decoder / 2-Separable Convolutions per Upsample](#4-layer-encoder--4-layer-decoder--2-separable-convolutions-per-upsample)
-	- [5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample](#5-layer-encoder--5-layer-decoder--3-separable-convolutions-per-upsample)
+- [Network Architecture](#network-architecture)
+	- [Components](#components)
+		- [Encoder](#encoder)
+		- [1x1 Convolution](#1x1-convolution)
+		- [Decoder](#decoder)
+		- [Output Layer](#output-layer)
+	- [Comparison Of Two Architectures](#comparison-of-two-architectures)
+		- [4-Layer Encoder / 4-Layer Decoder / 2-Separable Convolutions per Upsample](#4-layer-encoder--4-layer-decoder--2-separable-convolutions-per-upsample)
+		- [5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample](#5-layer-encoder--5-layer-decoder--3-separable-convolutions-per-upsample)
 - [Other Use Cases](#other-use-cases)
 - [Future Improvements](#future-improvements)
 - [References](#references)
@@ -105,29 +107,6 @@ The drone could then use the CoG of the blue pixels in the segmented image to fo
 
 A simulator was provided with the project to merely collect 'real-world' data in the event that the data included with the project was not sufficient. This was not used in this project however, as the provided data proved sufficient to satisfy the [rubric [https://review.udacity.com/#!/rubrics/1155/view]].
 
-## Network Architecture
-
-Fully _Convolutional_ networks are well suited for segmentation tasks because they do not suffer from the loss of spatial information inherent in Fully _Connected_ Networks. The network comprises of an encoder, followed then by a decoder.
-
-Here is a diagram of the final architecture that I settled on:
-
-
-### Encoder
-
-The encoder layers gradually reduce the size of each feature tensor passing through the network, while increasing the number of features it extracts at each layer. 
-
-### 1x1 Convolution
-
-A 1x1 convolution in the middle adds a layer of non-linearity to the network before the decoder starts. It can also serve to increase or decrease the number of features extracted from the last layer of the encoder.
-
-### Decoder
-
-Understandably, the decoding layer does the opposite of the encoder -- converts smaller feature tensors into larger ones, while reducing the feature count at the same time. The decoder layer then outputs a softmax activation for each pixel across the number of classes being segmented out of the original image, which essentially ends up being an image of the same X and Y dimensions, and possibly a different set of channels.
-
-To produce larger feature tensors, each decoding layer includes a _Bilinear Upsampling layer_ (doubling the image size in both x and y dimensions), followed then by a concatenation of _Skip Connections_ from its corresponding encoding layer with the same feature tensor shape, followed then by 2 _Separable Convolution Layers_.
-
-In the case of the network in question, the output of the image would be a 160x160x3 tensor. It so happens that the 3 classes above, through a softmax activation layer, could be trivially translated to the 3 RGB channels, which is why the 3 types of scenes (hero close, hero far, and no hero) were given equivalence to the 3 specific RGB colors. Had there been more classes of images, or a different color mapping, a separate conversion would have been needed to convert the softmax activations into an appropriate 3-channel RGB value in the segmented image.
-
 ## Training
 
 The immediate goal of this project was to satisfy the 40% IoU metric required, which is the yardstick I used when evaluating various hyper parameters during training. Therefore, it is worth noting that I did not explore optimizations to the network beyond what was needed to reach the requisite IoU score. Possible optimizations are discussed at the end of this document. Furthermore, I tuned the hyperparameters manually, though I could have used tools like TensorBoard to compare various permutations of hyperparameters.
@@ -153,9 +132,9 @@ I started with an Adam optimizer but later settled on _Nadam_ based on input fro
 
 ????
 
-#### Network Depth (# of encoding/decoding layers)
+#### Network Depth
 
-I compared the performance of 2 network architectures, both of which passed the IoU metric, and I have outlined the results in the [Assessments](#assessments) section.
+I compared the performance of 2 network architectures, both of which passed the IoU metric, and I have outlined the results in the [Comparison Of Two Architectures](#comparison-of-two-architectures) section.
 
 Even with 5 layers and filters ranging in depth from 32 to 512, the network did not seem to overfit to the training set. This was likely because of batch normalization being applied after every convolution layer in the network.
 
@@ -200,7 +179,31 @@ Here are some callbacks I used to simplify the training bookkeeping:
 Here is a custom callback that was implemented for special handling at the end of an epoch
 - _plotting_tools.LoggerPlotter_: At the end of every epoch, this plots a graph of the val_loss history before that epoch. It also saves that plot, and the model weights, in a folder created for that particular training run, which helps with post-mortem analysis of different runs.
 
-## Assessment
+## Network Architecture
+
+Fully _Convolutional_ networks are well suited for segmentation tasks because they do not suffer from the loss of spatial information inherent in Fully _Connected_ Networks. The network comprises of an encoder, followed then by a decoder.
+
+Here is a diagram of the final architecture that I settled on:
+
+### Components
+
+#### Encoder
+
+The encoder layers gradually reduce the size of each feature tensor passing through the network, while increasing the number of features it extracts at each layer. 
+
+#### 1x1 Convolution
+
+A 1x1 convolution in the middle adds a layer of non-linearity to the network before the decoder starts. It can also serve to increase or decrease the number of features extracted from the last layer of the encoder.
+
+#### Decoder
+
+Understandably, the decoding layer does the opposite of the encoder -- converts smaller feature tensors into larger ones, while reducing the feature count at the same time. The decoder layer then outputs a softmax activation for each pixel across the number of classes being segmented out of the original image, which essentially ends up being an image of the same X and Y dimensions, and possibly a different set of channels.
+
+To produce larger feature tensors, each decoding layer includes a _Bilinear Upsampling layer_ (doubling the image size in both x and y dimensions), followed then by a concatenation of _Skip Connections_ from its corresponding encoding layer with the same feature tensor shape, followed then by 2 _Separable Convolution Layers_.
+
+In the case of the network in question, the output of the image would be a 160x160x3 tensor. It so happens that the 3 classes above, through a softmax activation layer, could be trivially translated to the 3 RGB channels, which is why the 3 types of scenes (hero close, hero far, and no hero) were given equivalence to the 3 specific RGB colors. Had there been more classes of images, or a different color mapping, a separate conversion would have been needed to convert the softmax activations into an appropriate 3-channel RGB value in the segmented image.
+
+### Comparison Of Two Architectures
 
 Thanks to AWS, I was able to pretty quickly train the network over ~60 epochs, which allowed me to experiment with different network topologies. Below are two different topologies that I experimented with.
 
@@ -212,19 +215,19 @@ These hyperparameters were common to both topologies that were explored.
 - Validation Batch Size = 32
 - Batches per Validation: 25
 
-### 4-Layer Encoder / 4-Layer Decoder / 2-Separable Convolutions per Upsample
+#### 4-Layer Encoder / 4-Layer Decoder / 2-Separable Convolutions per Upsample
 
 This was achieved using a network with 4 encoder layers and 4 decoder layers. Filter depths varied from 32 to 256, depending on the layer, both for the encoder and decoder sections. Each decoding layer included an upsampling layer (doubling the image size in both x and y dimensions), followed by a concatenation of a skip connection input from its corresponding encoding layer, followed then by 2 separable convolution layers. I ran the training for ~60 epochs, though the network had almost fully saturated near ~30 epochs, as you can see in the validation loss graph below. Nevertheless, it appears there was still some marginal improvement going up to 60 epochs, which helped push the IoU score above 0.40.
 
 ![Take1 - Validation Loss History](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-val-loss-history-plot.png)
 
-#### Network Diagram
+##### Network Diagram
 ![Take1 - Network Diagram](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-network.png)
 
-#### Network Evaluation
+##### Network Evaluation
 ![Take1 - IoU Evaluation](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-evaluation.png)
 
-#### Segmentation Outputs
+##### Segmentation Outputs
 
 *Hero close by*
 ![Take1 - Hero Close By](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-close.png)
@@ -235,7 +238,7 @@ This was achieved using a network with 4 encoder layers and 4 decoder layers. Fi
 *Hero far away*
 ![Take1 - Hero Far Away](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-far.png)
 
-### 5-Layer Encoder / 5-Layer Decoder / 2-Separable Convolutions per Upsample
+#### 5-Layer Encoder / 5-Layer Decoder / 2-Separable Convolutions per Upsample
 
 This was a deeper network (5 encoding layers and 5 decoding layers) than earlier, and consequently its filter depths varied from 32 to 512, depending on the layer, both for the encoder and decoder sections.
 
@@ -243,13 +246,13 @@ I ran the training for ~60 epochs, though the network had almost fully saturated
 
 ![Take2 - Validation Loss History](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-val-loss-history-plot.png)
 
-#### Network Diagram
+##### Network Diagram
 ![Take2 - Network Diagram](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-network.png)
 
-#### Network Evaluation
+##### Network Evaluation
 ![Take2 - IoU Evaluation](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-evaluation.png)
 
-#### Segmentation Outputs
+##### Segmentation Outputs
 
 *Hero close by*
 ![Take2 - Hero Close By](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-hero-close.png)
