@@ -29,11 +29,11 @@
 		- [Data Filteration](#data-filteration)
 		- [Batch Size](#batch-size)
 	- [AWS](#aws)
-	- [Jupyter Notebook Server](#jupyter-notebok-server)
+	- [Jupyter Notebook Server](#jupyter-notebook-server)
 	- [Training Hooks](#training-hooks-(callbacks))
 		- [Preexisting](#preexisting)
 		- [Custom](#custom)
-- [Performance](#performance)
+- [Assessment](#assessment)
 - [Other Use Cases](#other-use-cases)
 - [Future Improvements](#future-improvements)
 - [References](#references)
@@ -110,8 +110,6 @@ Fully _Convolutional_ networks are well suited for segmentation tasks because th
 Here is a diagram of the final architecture that I settled on:
 
 
-
-
 ### Encoder
 
 The encoder layers gradually reduce the size of each feature tensor passing through the network, while increasing the number of features it extracts at each layer. 
@@ -138,7 +136,7 @@ In the following sections, I discuss the hyperparameters I tweaked, before I set
 
 I started with a learning rate of 0.01, which was too high because the training and validation losses fluctuated a lot during training. I reduced that to 0.001, which proved to be sufficient to produce a smooth asymptotic training loss curve, and a reasonably smooth validation loss curve too, before stopping the training.
 
-Here is a side-by-side illustration of the validation loss for each learning rate used.
+Here is a side-by-side illustration of the validation loss for the two learning rates used (all else being equal):
 
 
 
@@ -149,7 +147,11 @@ On my local machine, where I started the training attempts, a batch size of 32 s
 
 I started with an Adam optimizer but later settled on _Nadam_ based on input from fellow students on Slack. I did not however notice a substantial enough difference between the two.
 
+????
+
 #### Network Depth (# of encoding/decoding layers)
+
+I compared the performance of 2 network architectures, both of which passed the IoU metric, and I have outlined the results in the [Assessments](#assessments) section.
 
 Even with 5 layers and filters ranging in depth from 32 to 512, the network did not seem to overfit to the training set. This was likely because of batch normalization being applied after every convolution layer in the network.
 
@@ -159,7 +161,7 @@ Initially, I kept the training to only ~20-25 epochs, which consistently fell sh
 #### Data Augmentation
 
 Through the data_iterator.BatchIterator() class, I augmented the data as follows:
-- Random (0.5) horizontal flipping of input images
+- Random (0.5) horizontal flipping of input images, as a form or regularization
 
 #### Data Filteration
 
@@ -191,9 +193,9 @@ Here are some callbacks I used to simplify the training bookkeeping:
 
 #### Custom
 Here is a custom callback that was implemented for special handling at the end of an epoch
-- _plotting_tools.LoggerPlotter_: At the end of every epoch, this plots a graph of the val_loss history before that epoch. It also saves that plot in a folder created for that particular training run.
+- _plotting_tools.LoggerPlotter_: At the end of every epoch, this plots a graph of the val_loss history before that epoch. It also saves that plot, and the model weights, in a folder created for that particular training run, which helps with post-mortem analysis of different runs.
 
-## Performance
+## Assessment
 
 Thanks to AWS, I was able to pretty quickly train the network over ~60 epochs, which allowed me to experiment with different network topologies. Below are two different topologies that I experimented with.
 
@@ -205,7 +207,7 @@ These hyperparameters were common to both topologies that were explored.
 - Validation Batch Size = 32
 - Batches per Validation: 25
 
-### Take # 1
+### 4-Layer Encoder / 4-Layer Decoder / 2-Separable Convolutions per Upsample
 
 This was achieved using a network with 4 encoder layers and 4 decoder layers, and a 1x1 convolution between them. Filter depths varied from 32 to 256, depending on the layer, both for the encoder and decoder sections. The encoding and decoding layers were essentiallly mirror images of each other. The encoding layers included just one separable convolution. Each decoding layer included an upsampling layer (doubling the image size in both x and y dimensions), followed by a concatenation of a skip connection input from its corresponding encoding layer, followed then by 2 separable convolution layers. I ran the training for ~60 epochs, though the network had almost fully saturated near ~30 epochs, as you can see in the validation loss graph below. Nevertheless, it appears there was still some marginal improvement going up to 60 epochs, which helped push the IoU score above 0.40.
 
@@ -228,7 +230,7 @@ This was achieved using a network with 4 encoder layers and 4 decoder layers, an
 *Hero far away*
 ![Take1 - Hero Far Away](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-far.png)
 
-### Take # 2
+### 5-Layer Encoder / 5-Layer Decoder / 2-Separable Convolutions per Upsample
 
 This was a deeper network (5 encoding layers and 5 decoding layers) than in take # 1, and consequently its filter depths varied from 32 to 512, depending on the layer, both for the encoder and decoder sections. The encoding and decoding layers were mirror images of each other. The encoding layers included just one separable convolution. Each decoding layer included an upsampling layer (doubling the image size in both x and y dimensions), followed by a concatenation of a skip connection input from its corresponding encoding layer, followed then by 3 separable convolution layers. I ran the training for ~60 epochs, though the network had almost fully saturated near ~30 epochs, , as you can see in the validation loss graph below. Nevertheless, it appears there was still some marginal improvement going up to 60 epochs, which helped push the IoU metric above 0.40.
 
