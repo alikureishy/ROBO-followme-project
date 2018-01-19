@@ -34,6 +34,8 @@
 		- [Preexisting](#preexisting)
 		- [Custom](#custom)
 - [Assessment](#assessment)
+	- [4-Layer Encoder / 4-Layer Decoder / 2-Separable Convolutions per Upsample](#4-layer-encoder--4-layer-decoder--2-separable-convolutions-per-upsample)
+	- [5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample](#5-layer-encoder--5-layer-decoder--3-separable-convolutions-per-upsample)
 - [Other Use Cases](#other-use-cases)
 - [Future Improvements](#future-improvements)
 - [References](#references)
@@ -122,6 +124,8 @@ A 1x1 convolution in the middle adds a layer of non-linearity to the network bef
 
 Understandably, the decoding layer does the opposite of the encoder -- converts smaller feature tensors into larger ones, while reducing the feature count at the same time. The decoder layer then outputs a softmax activation for each pixel across the number of classes being segmented out of the original image, which essentially ends up being an image of the same X and Y dimensions, and possibly a different set of channels.
 
+To produce larger feature tensors, each decoding layer includes a _Bilinear Upsampling layer_ (doubling the image size in both x and y dimensions), followed then by a concatenation of _Skip Connections_ from its corresponding encoding layer with the same feature tensor shape, followed then by 2 _Separable Convolution Layers_.
+
 In the case of the network in question, the output of the image would be a 160x160x3 tensor. It so happens that the 3 classes above, through a softmax activation layer, could be trivially translated to the 3 RGB channels, which is why the 3 types of scenes (hero close, hero far, and no hero) were given equivalence to the 3 specific RGB colors. Had there been more classes of images, or a different color mapping, a separate conversion would have been needed to convert the softmax activations into an appropriate 3-channel RGB value in the segmented image.
 
 ## Training
@@ -156,7 +160,8 @@ I compared the performance of 2 network architectures, both of which passed the 
 Even with 5 layers and filters ranging in depth from 32 to 512, the network did not seem to overfit to the training set. This was likely because of batch normalization being applied after every convolution layer in the network.
 
 #### Number of Epochs
-Initially, I kept the training to only ~20-25 epochs, which consistently fell short of the target IoU metric of 40%. I tried increasing the depth of the network (adding additional encoding and decoding layers) but that did not help.
+
+Training using a learning rate of 0.001, and the aforementioned [network depth](#network-depth-of-encoding-decoding-layers) would seemingly saturate after around ~10-15 epochs, but consistently fell short of the target IoU metric of 40%. However, if left to train for several more iterations, there was sufficient improvement (though excruciatingly incremental) with each additional epoch for the network to satisfy the >40% IoU metric. I ran all these networks for 60 epochs in total.
 
 #### Data Augmentation
 
@@ -209,7 +214,7 @@ These hyperparameters were common to both topologies that were explored.
 
 ### 4-Layer Encoder / 4-Layer Decoder / 2-Separable Convolutions per Upsample
 
-This was achieved using a network with 4 encoder layers and 4 decoder layers, and a 1x1 convolution between them. Filter depths varied from 32 to 256, depending on the layer, both for the encoder and decoder sections. The encoding and decoding layers were essentiallly mirror images of each other. The encoding layers included just one separable convolution. Each decoding layer included an upsampling layer (doubling the image size in both x and y dimensions), followed by a concatenation of a skip connection input from its corresponding encoding layer, followed then by 2 separable convolution layers. I ran the training for ~60 epochs, though the network had almost fully saturated near ~30 epochs, as you can see in the validation loss graph below. Nevertheless, it appears there was still some marginal improvement going up to 60 epochs, which helped push the IoU score above 0.40.
+This was achieved using a network with 4 encoder layers and 4 decoder layers. Filter depths varied from 32 to 256, depending on the layer, both for the encoder and decoder sections. Each decoding layer included an upsampling layer (doubling the image size in both x and y dimensions), followed by a concatenation of a skip connection input from its corresponding encoding layer, followed then by 2 separable convolution layers. I ran the training for ~60 epochs, though the network had almost fully saturated near ~30 epochs, as you can see in the validation loss graph below. Nevertheless, it appears there was still some marginal improvement going up to 60 epochs, which helped push the IoU score above 0.40.
 
 ![Take1 - Validation Loss History](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-val-loss-history-plot.png)
 
@@ -232,7 +237,9 @@ This was achieved using a network with 4 encoder layers and 4 decoder layers, an
 
 ### 5-Layer Encoder / 5-Layer Decoder / 2-Separable Convolutions per Upsample
 
-This was a deeper network (5 encoding layers and 5 decoding layers) than in take # 1, and consequently its filter depths varied from 32 to 512, depending on the layer, both for the encoder and decoder sections. The encoding and decoding layers were mirror images of each other. The encoding layers included just one separable convolution. Each decoding layer included an upsampling layer (doubling the image size in both x and y dimensions), followed by a concatenation of a skip connection input from its corresponding encoding layer, followed then by 3 separable convolution layers. I ran the training for ~60 epochs, though the network had almost fully saturated near ~30 epochs, , as you can see in the validation loss graph below. Nevertheless, it appears there was still some marginal improvement going up to 60 epochs, which helped push the IoU metric above 0.40.
+This was a deeper network (5 encoding layers and 5 decoding layers) than earlier, and consequently its filter depths varied from 32 to 512, depending on the layer, both for the encoder and decoder sections.
+
+I ran the training for ~60 epochs, though the network had almost fully saturated near ~30 epochs, as you can see in the validation loss graph below. Nevertheless, it appears there was still some marginal improvement going up to 60 epochs, which helped push the IoU metric to 0.436
 
 ![Take2 - Validation Loss History](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-val-loss-history-plot.png)
 
@@ -257,22 +264,22 @@ This was a deeper network (5 encoding layers and 5 decoding layers) than in take
 
 This model, generally, would work with any kind of image segmentation task provided sufficient training data relevant to the problem being addressed.
 
-### Different types of objects
+### Different Types of Objects
 The model in this case was trained with specific data pertaining to human beings - a hero and others - walking in a city-like environment (with roads, bridges, buildings, lawns etc). In other words, the model weights have been specifically tuned to recognize features pertaining to the categories that it was trained to recognize using the training data provided. As examples, the model probably uses the color of the clothing to distinguish between the hero and other people. Therefore, this trained model, as it stands, will not work for segmenting other classes of objects (like cats, dogs etc), or different environments. In fact, it will also fail if the test data were to present the hero in a different set of clothes.
 
 The model has learned features specific to the domain for which it was trained. Therefore, if provided sufficient training data for other domains, with 3 classes of objects in the segmentation, this model is likely to segment those images well too. However, there are some limitations there too ...
 
-### Different number of object categories
+### Different Number of Object Categories
 One such limitation is that the model has been architected to address 3 classes of objects in this segmentation problem. If provided sufficient data, the model might still be trainable on a minor increase or decrease in the number of cateogories it is to classify pixels into. But, the model may not be able to train well for a vastly larger count of categories in the segmentation task.
 
-### More complex environments
+### More Complex Environments
 I also expect that, depending on the environments being processed, the network might need to be deeper. In other words, it should be possible to come up with an environment wherein the objects being classified require the network to learn more features than it is presently capable of learning. In such situations too, this network will not be trainable.
 
 ## Future Improvements
 
 To improve upon this network further, here are some additional tasks to be attempted.
 
-### Training with an appropriately balanced categorical distribution of data
+### Appropriately Balanced Training Data
 
 I have achieved the requisite rubric [https://review.udacity.com/#!/rubrics/1155/view] for this project by using the provided data itself, without any additional data generated from the simulator. However, collecting more data would likely be necessary to push the IoU higher for this project.
 
@@ -290,19 +297,19 @@ Therefore, in my view, an approximate distribution that would achieve better res
 
 I have obviously not tested this hypothesis, but it remains a future goal.
 
-### Larger kernels with dimensionality reduction
+### Different Kernel Sizes
 
 I have mostly focused on a kernel of size 3 in this project. A kernel of 5 not only deteriorated accuracy but also performance of the network during both training and inference. One way to optimize convolution with such a kernel is to insert a 1x1 convolution before it that reduces the dimensionality of the prior layer. This reduction in dimensionality dramatically reduces the number of trainable parameters when convolving the larger sized kernels.
 
-### Using Inception layers in the encoder
+### Using Inception Layers
 
 It is conceivable that using different sized kernels together might help find more relevant features for the segmentation task. The inception network targets just that scenario. If each encoder layer were an inception network, combining kernels of sizes 3, 5 and 7, in addition to a 1x1 convolution itself, as well as a maxpooling layer, we could achieve better accuracy. The degradation in performance from adding such large kernels can be worked around by inserting a 1x1 convolution to reduce the dimensionality of the prior layer before it is convolved with the associated kernel.
 
-### Using Transposed Convolutions in addition to (or instead of) Biliniear Upsampling
+### Using Transposed Convolutions Instead of Biliniear Upsampling
 
 In bilinear upsampling, the upsampled image is based purely on the input image. When using Transposed Convolutions, the relation between the input and upsampled image pixels can be learned by the network, thereby not only introducing additional non-linearities in the upsampling but also a more nuanced transformation relation between the pixels in the input and output. But for this same reason, this approach will also impact performance, both during training and also with inference. However, that can potentially be resolved by removing the 'same' padded convolution layers at each decoding layer, after the transposed convolution step. It is not clear to me which approach will produce better accuracy, but it is perhaps worth exploring.
 
-### Better Hyperparemter Tuning
+### Used TensorBoard for Hyperparemter Tuning
 
 I could have used TensorBoard to compare various hyperparameter permutations, but did not on account of time constraints with getting familiar with all the TensorBoard tools and quirks.
 
@@ -310,7 +317,6 @@ I settled on a batch size of 32 since that was appropriate to the memory constra
 
 
 
-
-
-
 ## References
+
+No references to called out at the moment.
