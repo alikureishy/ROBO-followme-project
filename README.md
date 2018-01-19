@@ -9,6 +9,9 @@
 ## Table of Contents
 
 - [Overview](#overview)
+- [Environment & Setup](#environment-and-setup)
+	- [AWS](#aws)
+	- [Jupyter Notebook Server](#jupyter-notebook-server)
 - [Data](#data)
 	- [Inputs](#inputs)
 		- [Provided Data](#provided-data)
@@ -24,8 +27,6 @@
 		- [Data Augmentation](#data-augmentation)
 		- [Data Filteration](#data-filteration)
 		- [Batch Size](#batch-size)
-	- [AWS](#aws)
-	- [Jupyter Notebook Server](#jupyter-notebook-server)
 	- [Training Hooks](#training-hooks-(callbacks))
 		- [Preexisting](#preexisting)
 		- [Custom](#custom)
@@ -69,6 +70,25 @@ The folder hierarchy is as follows:
       inferences/
     docs/
     logs/                     <-- Tensorboard logs      
+```
+
+## Environment and Setup
+
+### AWS
+
+Training was done on a p2.xlarge (GPU-Compute) EC2 instance on AWS, which performed brilliantly, achieving almost a 10x improvement in training time. The _Udacity Robotics Deep Learning Laboratory (ami-e4fd199e) AMI_ was used, as below:
+
+![AWS AMI](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/aws-ami.png)
+
+During training, I was able to max out the GPU usage on this machine as well, as suggested by this output from the command-line ```nvidia-smi'' command:
+
+<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/gpu-utilization.png" width="900" height="250">
+
+### Jupyter Notebook Server
+
+This goes without saying. Nevertheless, on an EC2 instance (as mentioned above), the command to launch the Jupyter server is:
+```
+    jupyter notebook --ip='*' --port=8888 --no-browser
 ```
 
 ## Data
@@ -150,23 +170,6 @@ Through the data_iterator.BatchIterator() class, I augmented the data as follows
 #### Data Filteration
 
 Filteration was also necessary for this data, in order to balance the training data across the 3 types of images (hero close by, hero far away, and no hero). The provided data had only 37% images with the hero in it, and 63% without. To balance this, I randomly filtered out 30% of all non-hero images, to bring down the count to ~44%. Note that this however is not optimal. A more optimal filtering approach is discussed under the Improvements section below.
-
-### AWS
-
-Training was done on a p2.xlarge (GPU-Compute) EC2 instance on AWS, which performed brilliantly, achieving almost a 10x improvement in training time. The _Udacity Robotics Deep Learning Laboratory (ami-e4fd199e) AMI_ was used, as below:
-
-![AWS AMI](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/aws-ami.png)
-
-During training, I was able to max out the GPU usage on this machine as well, as suggested by this output from the command-line ```nvidia-smi'' command:
-
-<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/gpu-utilization.png" width="900" height="250">
-
-### Jupyter Notebook Server
-
-This goes without saying. Nevertheless, on an EC2 instance (as mentioned above), the command to launch the Jupyter server is:
-```
-    jupyter notebook --ip='*' --port=8888 --no-browser
-```
 
 ### Training Hooks (Callbacks)
 
