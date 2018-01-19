@@ -147,7 +147,10 @@ I started with a learning rate of 0.01, which was too high because the training 
 
 Here is a side-by-side illustration of the validation loss for the two learning rates used (all else being equal):
 
-
+<div>
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-val-loss-history-plot.png" width="450" height="200">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/lr_0_01_val_loss_history.png" width="450" height="200">
+</div>
 
 #### Batch Size
 On my local machine, where I started the training attempts, a batch size of 32 seemed more appropriate given the memory constraints of the system. I could theoretically try increasing the batch size when I moved over to AWS, but I did not attempt that.
