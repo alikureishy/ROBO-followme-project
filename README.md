@@ -97,32 +97,34 @@ The objective was to train the network to output a segmented image of the same d
 - _Generic person (Green pixels)_: These are all other people in the scene who are *not* the 'hero'
 - _Surroundings (Red pixels)_: A catch-all category that includes everything else such as grass, road surfaces, buildings, sky etc.
 
-Therefore the output of the image would be 160x160x3 images. It so happens that the 3 classes above, through a softmax activation layer, could be trivially translated to the 3 RGB channels, which is why the encodings above were given equivalence to those 3 specific colors. Had there been more classes of images, or a different color mapping, a separate conversion would have been needed to convert the category into the appropriate 3-channel RGB pixel of the segmented image.
-
-The drone would use the CoG of the blue pixels in the segmented image to follow behind the hero. Ultimately this DNN could therefore be used in an actual follow-me-drone implementation, but would of course require numerous other components that are outside the scope of this project.
+The drone could then use the CoG of the blue pixels in the segmented image to follow behind the hero. Ultimately this DNN could therefore be used in an actual follow-me-drone implementation, but would of course require numerous other components that are outside the scope of this project.
 
 ### Simulator
 
-A simulator was provided with the project to merely collect 'real-world' data in the event that the data included with the project was not sufficient. This was not used in this project however, as the provided data proved sufficient to satisfy the rubric [https://review.udacity.com/#!/rubrics/1155/view].
+A simulator was provided with the project to merely collect 'real-world' data in the event that the data included with the project was not sufficient. This was not used in this project however, as the provided data proved sufficient to satisfy the [rubric [https://review.udacity.com/#!/rubrics/1155/view]].
 
 ## Network Architecture
 
-Fully Convolutional networks are well suited for segmentation tasks.
+Fully _Convolutional_ networks are well suited for segmentation tasks because they do not suffer from the loss of spatial information inherent in Fully _Connected_ Networks. The network comprises of an encoder, followed then by a decoder.
 
-...
-...
-...
+Here is a diagram of the final architecture that I settled on:
 
-Here is a diagram of the architecture I finally settled on:
+
+
 
 ### Encoder
 
+The encoder layers gradually reduce the size of each feature tensor passing through the network, while increasing the number of features it extracts at each layer. 
 
 ### 1x1 Convolution
 
+A 1x1 convolution in the middle adds a layer of non-linearity to the network before the decoder starts. It can also serve to increase or decrease the number of features extracted from the last layer of the encoder.
 
 ### Decoder
 
+Understandably, the decoding layer does the opposite of the encoder -- converts smaller feature tensors into larger ones, while reducing the feature count at the same time. The decoder layer then outputs a softmax activation for each pixel across the number of classes being segmented out of the original image, which essentially ends up being an image of the same X and Y dimensions, and possibly a different set of channels.
+
+In the case of the network in question, the output of the image would be a 160x160x3 tensor. It so happens that the 3 classes above, through a softmax activation layer, could be trivially translated to the 3 RGB channels, which is why the 3 types of scenes (hero close, hero far, and no hero) were given equivalence to the 3 specific RGB colors. Had there been more classes of images, or a different color mapping, a separate conversion would have been needed to convert the softmax activations into an appropriate 3-channel RGB value in the segmented image.
 
 ## Training
 
@@ -135,6 +137,10 @@ In the following sections, I discuss the hyperparameters I tweaked, before I set
 #### Learning Rate
 
 I started with a learning rate of 0.01, which was too high because the training and validation losses fluctuated a lot during training. I reduced that to 0.001, which proved to be sufficient to produce a smooth asymptotic training loss curve, and a reasonably smooth validation loss curve too, before stopping the training.
+
+Here is a side-by-side illustration of the validation loss for each learning rate used.
+
+
 
 #### Batch Size
 On my local machine, where I started the training attempts, a batch size of 32 seemed more appropriate given the memory constraints of the system. I could theoretically try increasing the batch size when I moved over to AWS, but I did not attempt that.
