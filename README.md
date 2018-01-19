@@ -249,7 +249,7 @@ This was achieved using a network with 4 encoder layers and 4 decoder layers. Fi
 *Hero far away*
 ![Take1 - Hero Far Away](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-far.png)
 
-#### 5-Layer Encoder / 5-Layer Decoder / 2-Separable Convolutions per Upsample
+#### 5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample
 
 This was a deeper network (5 encoding layers and 5 decoding layers) than earlier, and consequently its filter depths varied from 32 to 512, depending on the layer, both for the encoder and decoder sections.
 
