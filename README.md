@@ -36,7 +36,7 @@
 		- [1x1 Convolution](#1x1-convolution)
 		- [Decoder](#decoder)
 		- [Output Layer](#output-layer)
-	- [Comparison Of Two Architectures](#comparison-of-two-architectures)
+	- [Comparison Of Architectures](#comparison-of-architectures)
 		- [4-Layer Encoder / 4-Layer Decoder / 2-Separable Convolutions per Upsample](#4-layer-encoder--4-layer-decoder--2-separable-convolutions-per-upsample)
 			- [Network Diagram](#network-diagram)
 			- [Network Evaluation](#network-evaluation)
@@ -217,19 +217,23 @@ To produce larger feature tensors, each decoding layer includes a _Bilinear Upsa
 
 In the case of the network in question, the output of the image would be a 160x160x3 tensor. It so happens that the 3 classes above, through a softmax activation layer, could be trivially translated to the 3 RGB channels, which is why the 3 types of scenes (hero close, hero far, and no hero) were given equivalence to the 3 specific RGB colors. Had there been more classes of images, or a different color mapping, a separate conversion would have been needed at the output layer, to convert the softmax activations into an appropriate 3-channel RGB value so as to produce an appropriately segmented output image.
 
-### Comparison Of Two Architectures
+### Comparison Of Architectures
 
-Thanks to AWS, I was able to pretty quickly train the network over ~60 epochs, which allowed me to experiment with different network topologies. Below are two different topologies that I experimented with.
+Thanks to AWS, I was able to pretty quickly train the network on 60+ epochs, which allowed me to experiment with different network topologies.
 
-*Common Hyperparameters*
+Below are a few different topologies that I experimented with, with the following common hyperparameters:
 These hyperparameters were common to both topologies that were explored.
+```
 - Learning Rate = 0.001
 - Train Batch Size = 32
 - Batches Per Epoch: 130
 - Validation Batch Size = 32
 - Batches per Validation: 25
+```
 
-#### 4-Layer Encoder / 4-Layer Decoder / 2-Separable Convolutions per Upsample
+#### 4-Layer Encoder / 4-Layer Decoder / 2-Separable Convolutions per Upsample / Nadam Optimzer
+
+*IoU Achieved: 41.6!*
 
 This was achieved using a network with 4 encoder layers and 4 decoder layers. Filter depths varied from 32 to 256, depending on the layer, both for the encoder and decoder sections. Each decoding layer included an upsampling layer (doubling the image size in both x and y dimensions), followed by a concatenation of a skip connection input from its corresponding encoding layer, followed then by 2 separable convolution layers. I ran the training for ~60 epochs, though the network had almost fully saturated near ~30 epochs, as you can see in the validation loss graph below. Nevertheless, it appears there was still some marginal improvement going up to 60 epochs, which helped push the IoU score above 0.40.
 
@@ -252,7 +256,9 @@ This was achieved using a network with 4 encoder layers and 4 decoder layers. Fi
 *Hero far away*
 ![Take1 - Hero Far Away](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-far.png)
 
-#### 5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample
+#### 5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample / Nadam Optimzer
+
+*IoU Achieved: 43.65!*
 
 This was a deeper network (5 encoding layers and 5 decoding layers) than earlier, and consequently its filter depths varied from 32 to 512, depending on the layer, both for the encoder and decoder sections.
 
@@ -276,6 +282,35 @@ I ran the training for ~60 epochs, though the network had almost fully saturated
 
 *Hero far away*
 ![Take2 - Hero Far Away](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-hero-far.png)
+
+#### 5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample / Adam Optimzer
+
+*IoU Achieved: 46.67!*
+
+This had the same architecture as the previous attempt, except that I switched to an Adam optimizer (which was actually the optimizer that the default training code had been using in the project skeleton).
+
+The network hit optimal performance on the test set around epoch # 64.
+
+![Take3 - Validation Loss History](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-val-loss-history-plot.png)
+
+##### Network Diagram
+
+Same as [above](#network-diagram-1)
+
+##### Network Evaluation
+![Take3 - IoU Evaluation](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-evaluation.png)
+
+##### Segmentation Outputs
+
+*Hero close by*
+![Take3 - Hero Close By](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-hero-close.png)
+
+*No hero*
+![Take3 - No Hero](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-no-hero.png)
+
+*Hero far away*
+![Take3 - Hero Far Away](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-hero-far.png)
+
 
 ## Other Use Cases
 
