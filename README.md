@@ -32,7 +32,7 @@
 - [Conclusions](#conclusions)
 
 ## Overview
-This is an Image Segmentation project built as part of Udacity's 'Robotics Nanodegree Term 1' curriculum. It involves training a deep neural network using various mechanisms - such as Fully Convolutional Networks, Skip Connections, 1x1 Convolutions etc - to detect a person-of-interest from images captured by a Follow-Me drone, the purpose eventually being to be able to train a drone to follow-along with that person as they go jogging, walking etc. It was evaluated [https://review.udacity.com/#!/rubrics/1155/view] based on its IoU (Intersection-over-Union) performance on a provided test set.
+This is an Image Segmentation project built as part of Udacity's 'Robotics Nanodegree Term 1' curriculum. It involves training a deep neural network using a Fully Convolutional Network, as well as various other mechanisms - such as Skip Connections, 1x1 Convolutions etc - to detect a person-of-interest from images captured by a Follow-Me drone, the purpose eventually being to be able to train a drone to follow-along with that person as they go jogging, walking etc. It was evaluated [https://review.udacity.com/#!/rubrics/1155/view] based on its IoU (Intersection-over-Union) performance on a provided test set.
 
 The folder hierarchy is as follows:
 ```
@@ -64,7 +64,7 @@ The folder hierarchy is as follows:
 
 ### Inputs
 
-The network would be fed images (scenes) of a simulated world, as seen from the point of view of a drone that would, hypothetically speaking, continuously detect a designated person-of-interest (aka 'hero') within that scene and follow behind her. An example of such a scene captured from the drone's camera is illustrated at the top of this document.
+The network would be fed 160x160x3-pixel images (scenes) of a simulated world, as seen from the point of view of a drone that would, hypothetically speaking, continuously detect a designated person-of-interest (aka 'hero') within that scene and follow behind her. An example of such a scene captured from the drone's camera is illustrated at the top of this document.
 
 There are three types of images included as training data:
 - _Images containing the hero nearby_: For incremental adjustments of the drone's guidance system
@@ -74,18 +74,23 @@ There are three types of images included as training data:
 #### Provided Data
 
 The data provided was not balanced across the three types of scenarios above. Here is a breakdown of the counts:
-- Hero nearby:
-- Hero far away:
-- No hero at all:
-
-So, only 37% of the images actually had the hero at all (first two categories) in them. The remaining were of the 3rd category.
+```
+- Hero nearby: 413 (Images with masks containing > 400 blue pixels)
+- Hero far away: 1142 (Images with masks containing 1 - 400 blue pixels)
+	- Hero far = 621 (Images with masks containing between 40-400 blue pixels)
+	- Hero very far = 521 (Images with masks containing btween 1-40 blue pixels)
+- No hero at all: 2576 (Images with masks containing 0 blue pixels)
+```
+Notice that only 37% of the images actually had the hero at all (first two categories) in them. The remaining 63% were of the 3rd category (with no hero at all).
 
 ### Expected Output
 
-The objective was to train the network to output a segmented image of the same size as the original, containing 3 classes of pixels:
+The objective was to train the network to output a segmented image of the same dimensions as the input image, containing 3 classes of pixels:
 - _Hero: (Blue pixels)_ These represent the POI (Person-Of-Interest, or "hero"): Identified with blue pixels
 - _Generic person (Green pixels)_: These are all other people in the scene who are *not* the 'hero'
 - _Surroundings (Red pixels)_: A catch-all category that includes everything else such as grass, road surfaces, buildings, sky etc.
+
+Therefore the output of the image would be 160x160x3 images. It so happens that the 3 classes above, through a softmax activation layer, could be trivially represented as the 3 input channels of RGB images, which is why the encodings above were given equivalence to those 3 specific colors. Had there been more classes of images, or a different color mapping, a separate conversion would have been needed to convert from the x-channel output image to the 3-channel RGB (or YUV etc) image.
 
 Such a segmentation would presumably provide the drone the coordinates of the object that it is to follow behind. Ultimately this could be used in an actual drone implementation, but would of course require various other components to fully implement, and is as such outside the scope of this project.
 
@@ -140,12 +145,12 @@ Initially, I kept the training to only ~20-25 epochs, which consistently fell sh
 
 #### Data Augmentation
 
-I augmented the data as follows:
+Through the data_iterator.BatchIterator() class, I augmented the data as follows:
 - Random (0.5) horizontal flipping of input images
 
 #### Data Filteration
 
-Filteration was also necessary for this data, in order to balance the training data across the 3 types of images (hero close by, hero far away, and no hero). The provided data 
+Filteration was also necessary for this data, in order to balance the training data across the 3 types of images (hero close by, hero far away, and no hero). The provided data had only 37% images with the hero in it, and 63% without. To balance this, I randomly filtered out 30% of all non-hero images, to bring down the count to ~44%. Note that this however is not optimal. A more optimal filtering approach is discussed under the Improvements section below.
 
 ### AWS
 
@@ -252,9 +257,23 @@ I also expect that, depending on the environments being processed, the network m
 
 To improve upon this network further, here are some additional tasks to be attempted.
 
-### Collecting more data
+### Training with an appropriately balanced categorical distribution of data
 
 I have achieved the requisite rubric [https://review.udacity.com/#!/rubrics/1155/view] for this project by using the provided data itself, without any additional data generated from the simulator. However, collecting more data would likely be necessary to push the IoU higher for this project.
+
+More specifically, the training data was imbalanced, with the following percentages:
+- Hero close: ~9.5%
+- Hero far: ~27.5%
+- No hero: ~63%
+
+As a result, the network in general was rather good at segmenting images that had no hero, or where the hero was very close. Images where the hero was far away had the worst accuracy as compared to the other two categories, even though 27.5% of the input data was of those types of images, arguably because that segmentation problem is more complicated, requiring a very small cluster of pixels in the image to be recognized as the hero. The case where the hero is very close is arguably an easier segmentation problem, because of the number of pixels that stand out as belonging to the hero.
+
+Therefore, in my view, an approximate distribution that would achieve better results in all 3 categories of images is as follows:
+- Hero close: ~20%
+- Hero far: ~50%
+- No hero: ~30%
+
+I have obviously not tested this hypothesis, but it remains a future goal.
 
 ### Larger kernels with dimensionality reduction
 
