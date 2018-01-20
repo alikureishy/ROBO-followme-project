@@ -22,7 +22,7 @@
 		- [Batch Size](#batch-size)
 		- [Batches Per Epoch](#batches-per-epoch)
 		- [Number of Epochs](#number-of-epochs)
-	- [Training Hooks](#training-hooks-(callbacks))
+	- [Training Hooks](#training-hooks-callbacks)
 		- [Preexisting](#preexisting)
 		- [Custom](#custom)
 	- [Regularization](#regularization)
@@ -36,9 +36,10 @@
 		- [Decoder](#decoder)
 		- [Output Layer](#output-layer)
 	- [Network Depth](#network-depth)
+	- [Final Architeture](#final-architecture)
 	- [Loss Function](#loss-function)
 	- [Optimizer](#optimizer)
-- [Segmentation Results](#segmentation-results)
+- [Results!](#-results)
 	- [Validation Loss Graph](#validation-loss-graph)
 	- [Network Evaluation](#network-evaluation)
 	- [Segmentation Outputs](#segmentation-outputs)
@@ -204,7 +205,7 @@ Filteration was also necessary for this data, in order to balance the training d
 
 #### Batch Normalization
 
-Batch Normalization was used at the end of every convolution step in the network, which helped tremendously with regularization by normalizing the outputs of that convolution across each mini-batch.
+Batch Normalization was applied to the output of every convolution step in the network (whether it was a regular convolution or a separable convolution) by normalizing the outputs of that convolution across each mini-batch.
 
 ## Network Architecture
 
@@ -230,7 +231,7 @@ To produce larger feature tensors, each decoding layer includes a _Bilinear Upsa
 
 #### Output Layer
 
-In the case of the network in question, the output of the image would be a 160x160x3 tensor retrieved through a softmax activation layer. It so happens that the 3 classes above could be trivially paired with the 3 RGB channels, which is why the 3 types of scenes (hero close, hero far, and no hero) were given exact equivalence to the RGB color channels -- i.e, RGB channel values of [0,0,255], [0,255,0] or [255,0,0]. Had there been more classes of objects to be detected (say 'n'), a separate conversion step (for example, classes 1 and 3 with RGB channel mappings of [0,128, 255] and [15, 180, 150] respectvively) would have been needed at the output layer, to convert the 'n' softmax activations (across n-classes) into an appropriate distribution over the 3 RGB channels so as to produce a discernable segmentation output.
+In the case of the network in question, the output of the image is a 160x160x3 tensor retrieved through a _convolution layer_ followed by a softmax activation. It so happens that the 3 classes above could be trivially paired with the 3 RGB channels, which is why the 3 types of scenes (hero close, hero far, and no hero) were given exact equivalence to the RGB color channels -- i.e, RGB channel values of [0,0,255], [0,255,0] or [255,0,0]. Had there been more classes of objects to be detected (say 'n'), a separate conversion step (for example, classes 1 and 3 with RGB channel mappings of [0,128, 255] and [15, 180, 150] respectvively) would have been needed at the output layer, to convert the 'n' softmax activations (across n-classes) into an appropriate distribution over the 3 RGB channels so as to produce a discernable segmentation output.
 
 ### Network Depth
 
@@ -248,6 +249,7 @@ Depths explored:
 	- filter depths ranging between 32 and 512, depending on the layer (later layers had deeper filters)
 	- IoU Achieved: 46.65%
 
+### Final Architecture
 The final architecture, with Depth-of-5, is illustrated here:
 ![Final Architecture](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-model.png)
 
@@ -259,9 +261,12 @@ The loss function was the Cross-Entropy Loss over the output Softmax Activation 
 
 I started with an _Nadam_ optimizer based on input from fellow students on Slack (particularly as a form of regularization), but later settled on an _Adam_ optimizer after witnessing significantly better performance of the latter compared to the former, on the Depth-of-5 architecture.
 
-## Segmentation Results
+## Results
 
-The [network](network-depth) hit optimal performance on the test set around epoch # 64, with an IoU of *_46.65%_*!
+The [network](network-depth) hit optimal performance on the test set around epoch # 64, with an IoU of:
+```
+          46.65%!
+```
 
 ### Validation Loss Graph
 Here is the graph of the validation loss seen at the end of every epoch, until epoch #64.
@@ -291,10 +296,10 @@ The model in this case was trained with specific data pertaining to human beings
 The model has learned features specific to the domain for which it was trained. Therefore, if provided sufficient training data for other domains, with 3 classes of objects in the segmentation, this model is likely to segment those images well too. However, there are some limitations there too ...
 
 ### Different Number of Classes
-One such limitation is that the model has been architected to address 3 classes of objects in this segmentation problem. If provided sufficient data, the model might still be trainable on a minor increase or decrease in the number of cateogories it is to classify pixels into. But, the model may not be able to train well for a vastly larger count of categories in the segmentation task.
+One such limitation is that the model has been architected to address 3 classes of objects in this segmentation problem. If provided sufficient data, the model might still be trainable on a minor increase or decrease in the number of categories it is to classify pixels into. But, the model may not be able to train well for a vastly larger count of categories in the segmentation task, possibly because of higher than requisite bias in those cases.
 
 ### More Complex Environments
-I also expect that, depending on the environments being processed, the network might need to be deeper. In other words, it should be possible to come up with an environment wherein the objects being classified require the network to learn more features than it is presently capable of learning. In such situations too, this network will not be trainable.
+I also expect that the network might need to be deeper, or use other optimizations/tweaks to handle more complex environments. In other words, it could be possible to generate an input image where the objects being classified require the network to learn more discernable features than it is presently capable of learning. In such situations, this network will not be optimally trainable.
 
 ## Future Improvements
 
