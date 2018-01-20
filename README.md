@@ -204,7 +204,7 @@ Filteration was also necessary for this data, in order to balance the training d
 
 #### Batch Normalization
 
-Batch Normalization was used at the end of every convolution step in the network, which helped tremendously with regularization by normalizing the outputs of that convolution across each mini-batch.
+Batch Normalization was applied to the output of every convolution step in the network (whether it was a regular convolution or a separable convolution) by normalizing the outputs of that convolution across each mini-batch.
 
 ## Network Architecture
 
