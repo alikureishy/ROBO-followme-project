@@ -268,6 +268,8 @@ The [network](network-depth) hit optimal performance on the test set around epoc
           46.65%!
 ```
 
+Here are the optimally trained and loadable [weights file](https://github.com/safdark/ROBO-followme-project/blob/master/data/weights/weights.hd5) and [architecture file](https://github.com/safdark/ROBO-followme-project/blob/master/data/weights/architecture.json) files for this network. Please use the load_architecture() API in the [model_tools.py file](https://github.com/safdark/ROBO-followme-project/blob/master/code/utils/model_tools.py) to load the architecture file. The weights file can be loaded using the model.load_weights() API once you've constructed the model from the load_architecture() API.
+
 ### Validation Loss Graph
 Here is the graph of the validation loss seen at the end of every epoch, until epoch #64.
 
