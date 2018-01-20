@@ -235,7 +235,7 @@ In the case of the network in question, the output of the image would be a 160x1
 
 ### Network Depth
 
-Depth made a significant impact to the IoU scores achieved by the network. A shallower network didn't seem to have sufficient variance to be able to closely approximate the data generating process, unless the filter depth of each layer was significantly increased. However, doing that immediately put a strain on the resources available (even on an AWS p2.xlarge instance). This was because of the explosion in the number of parameters being learned, which not only put a strain on memory but also on performance. I could have worked around this by using [1x1 convolutions for dimensionality reduction](#using-inception-layers) at each of the two layers, but I chose instead to keep it simple for now, and increase the network depth to 4, and subsequently to 5 layers for [comparison](#comparison-of-architectures).
+Depth made a significant impact to the IoU scores achieved by the network. A shallower network didn't seem to have sufficient variance to be able to closely approximate the data generating process, unless the filter depth of each layer was significantly increased. However, doing that immediately put a strain on the resources available (even on an AWS p2.xlarge instance). This was because of the explosion in the number of parameters being learned, which not only put a strain on memory but also on performance. I could have worked around this by using [1x1 convolutions for dimensionality reduction](#using-inception-layers) at each of the two layers, but I chose instead to keep it simple for now, and increase the network depth to 4, and subsequently to 5 layers.
 
 Depths explored:
 - Depth-of-4:
@@ -250,7 +250,7 @@ Depths explored:
 	- IoU Achieved: 46.65%
 
 The final architecture, with Depth-of-5, is illustrated here:
-<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-model.png" width="400" height="200">
+![Final Architecture](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-model.png)
 
 ### Loss Function
 
@@ -262,7 +262,7 @@ I started with an _Nadam_ optimizer based on input from fellow students on Slack
 
 ## Segmentation Results
 
-The network hit optimal performance on the test set around epoch # 64, with an IoU of *_46.65%_*!
+The [network](network-depth) hit optimal performance on the test set around epoch # 64, with an IoU of *_46.65%_*!
 
 ### Validation Loss Graph
 Here is the graph of the validation loss seen at the end of every epoch, until epoch #64.
@@ -273,6 +273,8 @@ Here is the graph of the validation loss seen at the end of every epoch, until e
 ![Take3 - IoU Evaluation](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-evaluation.png)
 
 ### Segmentation Outputs
+
+Here are the segmentation outputs of this network. From left to right - hero close by, no hero (patrol mode), and hero very far:
 
 <div>
 	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-hero-close.png" width="290" height="290">
