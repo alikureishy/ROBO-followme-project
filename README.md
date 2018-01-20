@@ -294,10 +294,10 @@ The model in this case was trained with specific data pertaining to human beings
 The model has learned features specific to the domain for which it was trained. Therefore, if provided sufficient training data for other domains, with 3 classes of objects in the segmentation, this model is likely to segment those images well too. However, there are some limitations there too ...
 
 ### Different Number of Classes
-One such limitation is that the model has been architected to address 3 classes of objects in this segmentation problem. If provided sufficient data, the model might still be trainable on a minor increase or decrease in the number of cateogories it is to classify pixels into. But, the model may not be able to train well for a vastly larger count of categories in the segmentation task.
+One such limitation is that the model has been architected to address 3 classes of objects in this segmentation problem. If provided sufficient data, the model might still be trainable on a minor increase or decrease in the number of categories it is to classify pixels into. But, the model may not be able to train well for a vastly larger count of categories in the segmentation task, possibly because of higher than requisite bias in those cases.
 
 ### More Complex Environments
-I also expect that, depending on the environments being processed, the network might need to be deeper. In other words, it should be possible to come up with an environment wherein the objects being classified require the network to learn more features than it is presently capable of learning. In such situations too, this network will not be trainable.
+I also expect that the network might need to be deeper, or use other optimizations/tweaks to handle more complex environments. In other words, it could be possible to generate an input image where the objects being classified require the network to learn more discernable features than it is presently capable of learning. In such situations, this network will not be optimally trainable.
 
 ## Future Improvements
 
