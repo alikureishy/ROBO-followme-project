@@ -21,41 +21,47 @@
 	- [Hyperparameter Tuning](#hyperparameter-tuning)
 		- [Learning Rate](#learning-rate)
 		- [Batch Size](#batch-size)
-		- [Optimizer](#optimizer)
-		- [Network Depth](#network-depth)
+		- [Batches Per Epoch](#batches-per-epoch)
 		- [Number of Epochs](#number-of-epochs)
-		- [Data Augmentation](#data-augmentation)
-		- [Data Filteration](#data-filteration)
-		- [Batch Size](#batch-size)
 	- [Training Hooks](#training-hooks-(callbacks))
 		- [Preexisting](#preexisting)
 		- [Custom](#custom)
+	- [Regularization](#regularization)
+		- [Data Augmentation](#data-augmentation)
+		- [Data Filteration](#data-filteration)
+		- [Batch Normalization](#batch-normalization)
 - [Network Architecture](#network-architecture)
 	- [Components](#components)
 		- [Encoder](#encoder)
 		- [1x1 Convolution](#1x1-convolution)
 		- [Decoder](#decoder)
 		- [Output Layer](#output-layer)
+	- [Network Depth](#network-depth)
+	- [Loss Function](#loss-function)
+	- [Optimizer](#optimizer)
 	- [Comparison Of Architectures](#comparison-of-architectures)
 		- [4-Layer Encoder / 4-Layer Decoder / 2-Separable Convolutions per Upsample / Nadam Optimizer](#4-layer-encoder--4-layer-decoder--2-separable-convolutions-per-upsample-nadam-optimizer)
-			- [Network Diagram](#network-diagram)
 			- [Network Evaluation](#network-evaluation)
 			- [Segmentation Outputs](#segmentation-outputs)
 		- [5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample / Nadam Optimizer](#5-layer-encoder--5-layer-decoder--3-separable-convolutions-per-upsample-nadam-optimizer)
-			- [Network Diagram](#network-diagram-1)
 			- [Network Evaluation](#network-evaluation-1)
 			- [Segmentation Outputs](#segmentation-outputs-1)
-		- [5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample / Nadam Optimizer](#5-layer-encoder--5-layer-decoder--3-separable-convolutions-per-upsample--adam-optimzer)
-			- [Network Diagram](#network-diagram-2)
+		- [5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample / Adam Optimizer](#5-layer-encoder--5-layer-decoder--3-separable-convolutions-per-upsample--adam-optimzer)
 			- [Network Evaluation](#network-evaluation-2)
-			- [Segmentation Outputs](#segmentation-outputs-2)
-			
+			- [Segmentation Outputs](#segmentation-outputs-2)			
 - [Other Use Cases](#other-use-cases)
+	- [Different Classes](#different-classes)
+	- [Different Number of Classes](#different-classes)
+	- [More Complex Environments](#more-complex-environments)
 - [Future Improvements](#future-improvements)
+	- [Appropriately Balancing Training Data](#appropriately-balancing-training-data)
+	- [Using Inception Layers](#using-inception-layers)
+	- [Transposed Convolutions Instead of Biliniear Upsampling](#transposed-convolutions-instead-of-bilinear-upsampling)
+	- [TensorBoard for Exhaustive Hyperparemter Tuning](#tensorboard-for-exhaustive-hyperparameter-tuning)
 - [References](#references)
 
 ## Overview
-This is an Image Segmentation project built as part of Udacity's 'Robotics Nanodegree Term 1' curriculum. It involves training a deep neural network using a Fully Convolutional Network, as well as various other mechanisms - such as Skip Connections, 1x1 Convolutions etc - to detect a person-of-interest from images captured by a Follow-Me drone, the purpose eventually being to be able to train a drone to follow-along with that person as they go jogging, walking etc. It was evaluated [https://review.udacity.com/#!/rubrics/1155/view] based on its IoU (Intersection-over-Union) performance on a provided test set.
+This is an Image Segmentation project built as part of Udacity's 'Robotics Nanodegree Term 1' curriculum. It involves training a deep neural network using a Fully Convolutional Network, as well as various other mechanisms - such as Skip Connections, 1x1 Convolutions etc - to detect a person-of-interest from images captured by a Follow-Me drone, the purpose eventually being to be able to train a drone to follow-along with that person as they go jogging, walking etc. It was [evaluated](https://review.udacity.com/#!/rubrics/1155/view) based on its IoU (Intersection-over-Union) performance on a provided test set.
 
 The folder hierarchy is as follows:
 ```
@@ -87,17 +93,19 @@ The folder hierarchy is as follows:
 
 ### AWS
 
-Training was done on a p2.xlarge (GPU-Compute) EC2 instance on AWS, which performed brilliantly, achieving almost a 10x improvement in training time. The _Udacity Robotics Deep Learning Laboratory (ami-e4fd199e) AMI_ was used, as below:
+Training was done on a p2.xlarge (GPU-Compute) EC2 instance on AWS, which performed brilliantly, achieving a 10x-15x reduction in training time. The _Udacity Robotics Deep Learning Laboratory (ami-e4fd199e) AMI_ was used, as shown below:
 
 ![AWS AMI](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/aws-ami.png)
 
-During training, I was able to max out the GPU usage on this machine as well, as suggested by this output from the command-line ```nvidia-smi'' command:
+During training, I was able to max out the GPU usage on this machine as well, as suggested by this output from the command-line ```nvidia-smi``` command:
 
 <img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/gpu-utilization.png" width="900" height="250">
 
+One issue I faced was with getting the plotting of the keras model to work. [This youtube video](https://www.youtube.com/watch?v=8f2lOxsCDHM) helped explain how to resolve that problem.
+
 ### Jupyter Notebook Server
 
-This goes without saying. Nevertheless, on an EC2 instance (as mentioned above), the command to launch the Jupyter server is:
+On an EC2 instance (as mentioned above), the command to launch the Jupyter server was:
 ```
     jupyter notebook --ip='*' --port=8888 --no-browser
 ```
@@ -136,7 +144,7 @@ The drone could then use the CoG of the blue pixels in the segmented image to fo
 
 ### Simulator
 
-A simulator was provided with the project to merely collect 'real-world' data in the event that the data included with the project was not sufficient. This was not used in this project however, as the provided data proved sufficient to satisfy the [rubric [https://review.udacity.com/#!/rubrics/1155/view]].
+A simulator was provided with the project to merely collect 'real-world' data in the event that the data included with the project was not sufficient. This was not used in this project however, as the provided data proved sufficient to satisfy the [rubric](https://review.udacity.com/#!/rubrics/1155/view).
 
 ## Training
 
@@ -144,46 +152,38 @@ The immediate goal of this project was to satisfy the 40% IoU metric required, w
 
 ### Hyperparameter Tuning
 
-In the following sections, I discuss the hyperparameters I tweaked, before I settled on the 'winning' network architecture and accompanying paramters.
+Thanks to the [p2.xlarge instance on AWS](#aws), I was able to pretty quickly explore various hyperparameters and network architectures, and settled on these common hyperparameters, prior to exploring different network architectures:
+```
+- Learning Rate = 0.001
+- Train Batch Size = 32
+- Batches Per Epoch: 130
+- Validation Batch Size = 32
+- Batches per Validation: 25
+```
+
+In the following sections, I discuss the reasoning for the selection of the various 'winning' hyperparameters.
 
 #### Learning Rate
 
 I started with a learning rate of 0.01, which was too high because the training and validation losses fluctuated a lot during training. I reduced that to 0.001, which proved to be sufficient to produce a smooth asymptotic training loss curve, and a reasonably smooth validation loss curve too, before stopping the training.
 
-Here is a side-by-side illustration of the validation loss for the two learning rates used (all else being equal):
+Here is a side-by-side illustration of the validation loss for the two learning rates used (all else being equal). Left is with 0.01, right with 0.001. Notice the sawtooth-like curve with the 0.01 learning rate.
 
 <div>
-	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-val-loss-history-plot.png" width="450" height="200">
-	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/lr_0_01_val_loss_history.png" width="450" height="200">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/lr_0_01_val_loss_history.png" width="400" height="200">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-val-loss-history-plot.png" width="400" height="200">
 </div>
 
 #### Batch Size
-On my local machine, where I started the training attempts, a batch size of 32 seemed more appropriate given the memory constraints of the system. I could theoretically try increasing the batch size when I moved over to AWS, but I did not attempt that.
+On my local machine, where I started the training attempts, a batch size of 32 seemed more appropriate given the memory constraints of the system. I could theoretically try increasing the batch size when I moved over to AWS, but I did not attempt that since the performance was satisfactory with the chosen batchsize.
 
-#### Optimizer
+#### Batches Per Epoch
 
-I started with an Adam optimizer but later settled on _Nadam_ based on input from fellow students on Slack. I did not however notice a substantial enough difference between the two.
-
-????
-
-#### Network Depth
-
-I compared the performance of 2 network architectures, both of which passed the IoU metric, and I have outlined the results in the [Comparison Of Two Architectures](#comparison-of-two-architectures) section.
-
-Even with 5 layers and filters ranging in depth from 32 to 512, the network did not seem to overfit to the training set. This was likely because of batch normalization being applied after every convolution layer in the network.
+With a batch size of 32, and a total training set size of 4131, there would need to be 160 batches per epoch. I chose one epoch to be the process of going through the entire training set once through.
 
 #### Number of Epochs
 
-Training using a learning rate of 0.001, and the aforementioned [network depth](#network-depth-of-encoding-decoding-layers) would seemingly saturate after around ~10-15 epochs, but consistently fell short of the target IoU metric of 40%. However, if left to train for several more iterations, there was sufficient improvement (though excruciatingly incremental) with each additional epoch for the network to satisfy the >40% IoU metric. I ran all these networks for 60 epochs in total.
-
-#### Data Augmentation
-
-Through the data_iterator.BatchIterator() class, I augmented the data as follows:
-- Random (0.5) horizontal flipping of input images, as a form or regularization
-
-#### Data Filteration
-
-Filteration was also necessary for this data, in order to balance the training data across the 3 types of images (hero close by, hero far away, and no hero). The provided data had only 37% images with the hero in it, and 63% without. To balance this, I randomly filtered out 30% of all non-hero images, to bring down the count to ~44%. Note that this however is not optimal. A more optimal filtering approach is discussed under the Improvements section below.
+Training using a learning rate of 0.001, and the chosen [network depth](#network-depth) would appear to largely saturate after around ~15 epochs, but consistently fell short of the target IoU metric of 40%. However, if left to train for ~50-60 epochs, there was still sufficient improvement (though infinitesimally small) with each additional epoch for the network to satisfy the >40% IoU metric. Running the [network](#network-depth) for ~60 epochs yielded an IoU of 46.65!
 
 ### Training Hooks (Callbacks)
 
@@ -196,11 +196,28 @@ Here are some callbacks I used to simplify the training bookkeeping:
 Here is a custom callback that was implemented for special handling at the end of an epoch
 - _plotting_tools.LoggerPlotter_: At the end of every epoch, this plots a graph of the val_loss history before that epoch. It also saves that plot, and the model weights, in a folder created for that particular training run, which helps with post-mortem analysis of different runs.
 
+### Regularization
+
+As a result of the following regularizations used, even the deepest network - with 5 layers and filter depths ranging from 32 to 512 - did not seem to overfit to the training set, and achieved . This was likely because of batch normalization being applied after every convolution step in the network. I also added regularization by [augmenting](#data-augmentation) the data.
+
+#### Data Augmentation
+
+Through the data_iterator.BatchIterator() class, I augmented the data as follows:
+- Random (0.5) horizontal flipping of input images, as a form or regularization
+
+#### Data Filteration
+
+Filteration was also necessary for this data, in order to balance the training data across the 3 types of images (hero close by, hero far away, and no hero). The provided data had only 37% images with the hero in it, and 63% without. To balance this, I implemented a randomness-based filter that, given a number between 0 and 1, would filter out that percentage of all non-hero images, bringing down the count of those images (to ~44% of the total training set). Note that this however is not optimal. A more optimal filtering approach is discussed [here](#appropriately-balancing-training-data).
+
+#### Batch Normalization
+
+Batch Normalization was used at the end of every convolution step in the network, which helped tremendously with regularization by normalizing the outputs of that convolution across each mini-batch.
+
 ## Network Architecture
 
-Fully _Convolutional_ networks are well suited for segmentation tasks because they do not suffer from the loss of spatial information inherent in Fully _Connected_ Networks. The network comprises of an encoder, followed then by a decoder.
+I compared the performance of 3 network architectures, all of which passed the IoU metric, but I have ranked them by increasing IoU score and outlined the results [here](#comparison-of-architectures).
 
-Here is a diagram of the final architecture that I settled on:
+Fully _Convolutional_ networks are well suited for segmentation tasks because they do not suffer from the loss of spatial information inherent in Fully _Connected_ Networks. The network comprises of an encoder, followed then by a decoder.
 
 ### Components
 
@@ -216,77 +233,79 @@ A 1x1 convolution in the middle adds a layer of non-linearity to the network bef
 
 Understandably, the decoding layer does the opposite of the encoder -- converts smaller feature tensors into larger ones, while reducing the feature count at the same time. The decoder layer then outputs a softmax activation for each pixel across the number of classes being segmented out of the original image, which essentially ends up being an image of the same X and Y dimensions, and possibly a different set of channels.
 
-To produce larger feature tensors, each decoding layer includes a _Bilinear Upsampling layer_ (doubling the image size in both x and y dimensions), followed then by a concatenation of _Skip Connections_ from its corresponding encoding layer with the same feature tensor shape, followed then by 2 _Separable Convolution Layers_.
+To produce larger feature tensors, each decoding layer includes a _Bilinear Upsampling layer_ (doubling the image size in both x and y dimensions), followed then by a concatenation of _Skip Connections_ from its corresponding encoding layer with the same feature tensor shape, followed then by 2 _Separable Convolution Layers_ to add non-linearity and more nuanced feature-of-feature extraction.
 
 #### Output Layer
 
-In the case of the network in question, the output of the image would be a 160x160x3 tensor. It so happens that the 3 classes above, through a softmax activation layer, could be trivially translated to the 3 RGB channels, which is why the 3 types of scenes (hero close, hero far, and no hero) were given equivalence to the 3 specific RGB colors. Had there been more classes of images, or a different color mapping, a separate conversion would have been needed at the output layer, to convert the softmax activations into an appropriate 3-channel RGB value so as to produce an appropriately segmented output image.
+In the case of the network in question, the output of the image would be a 160x160x3 tensor retrieved through a softmax activation layer. It so happens that the 3 classes above could be trivially paired with the 3 RGB channels, which is why the 3 types of scenes (hero close, hero far, and no hero) were given exact equivalence to the RGB color channels -- i.e, RGB channel values of [0,0,255], [0,255,0] or [255,0,0]. Had there been more classes of objects to be detected (say 'n'), a separate conversion step (for example, classes 1 and 3 with RGB channel mappings of [0,128, 255] and [15, 180, 150] respectvively) would have been needed at the output layer, to convert the 'n' softmax activations (across n-classes) into an appropriate distribution over the 3 RGB channels so as to produce a discernable segmentation output.
+
+### Network Depth
+
+Depth made a significant impact to the IoU scores achieved by the network. A shallower network didn't seem to have sufficient variance to be able to closely approximate the data generating process, unless the filter depth of each layer was significantly increased. However, doing that immediately put a strain on the resources available (even on an AWS p2.xlarge instance). This was because of the explosion in the number of parameters being learned, which not only put a strain on memory but also on performance. I could have worked around this by using [1x1 convolutions for dimensionality reduction](#using-inception-layers) at each of the two layers, but I chose instead to keep it simple for now, and increase the network depth to 4, and subsequently to 5 layers for [comparison](#comparison-of-architectures).
+
+Depths explored:
+- Depth-of-4:
+	- 4 encoding and 4 decoding layers
+	- 2 separable convolutions after each bilinear upsampling
+	- filter depths ranging between 32 and 256, depending on the layer (later layers had deeper filters)
+- Depth-of-5:
+	- 5 encoding and 5 decoding layers
+	- 3 separable convolutions after each bilinear upsampling
+	- filter depths ranging between 32 and 512, depending on the layer (later layers had deeper filters)
+
+These are illustrated here - the *Depth-of-4 on the left*, and *Depth-of-5 on the right*:
+<div>
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-model.png" width="400" height="200">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-model.png" width="400" height="200">
+</div>
+
+### Loss Function
+
+The loss function was the Cross-Entropy Loss over the output Softmax Activation layer. Since the expected y-value of a 3-class segmentation for a given pixel would be one of [0,0,1], [0,1,0] or [1,0,0], for this problem space, the closer the softmax activation would be to these values, obviously the lower the cross entropy loss. The resulting loss calculated for the entire segmented image would be the average cross-entropy loss of the softmax activation vector over all of the pixels in that image. Typical cross-entropy loss values for the validation set by a trained network were seen to be in the 0.01 - 0.04 range. Values above 0.05 would almost certainly not achieve the desired IoU score on the test set.
+
+### Optimizer
+
+I started with an _Nadam_ optimizer based on input from fellow students on Slack (particularly as a form of regularization), but later settled on an _Adam_ optimizer after witnessing significantly better performance of the latter compared to the former, on the Depth-of-5 architecture.
 
 ### Comparison Of Architectures
-
-Thanks to AWS, I was able to pretty quickly train the network on 60+ epochs, which allowed me to experiment with different network topologies.
-
-Below are a few different topologies that I experimented with, with the following common hyperparameters:
-These hyperparameters were common to both topologies that were explored.
-```
-- Learning Rate = 0.001
-- Train Batch Size = 32
-- Batches Per Epoch: 130
-- Validation Batch Size = 32
-- Batches per Validation: 25
-```
 
 #### 4-Layer Encoder / 4-Layer Decoder / 2-Separable Convolutions per Upsample / Nadam Optimzer
 
 *IoU Achieved: 41.6!*
 
-This was achieved using a network with 4 encoder layers and 4 decoder layers. Filter depths varied from 32 to 256, depending on the layer, both for the encoder and decoder sections. Each decoding layer included an upsampling layer (doubling the image size in both x and y dimensions), followed by a concatenation of a skip connection input from its corresponding encoding layer, followed then by 2 separable convolution layers. I ran the training for ~60 epochs, though the network had almost fully saturated near ~30 epochs, as you can see in the validation loss graph below. Nevertheless, it appears there was still some marginal improvement going up to 60 epochs, which helped push the IoU score above 0.40.
+I ran the training for ~60 epochs, though the network had almost fully saturated near ~30 epochs, as you can see in the validation loss graph below. Nevertheless, it appears there was still some marginal improvement going up to 60 epochs, which helped push the IoU score above 0.40.
 
-![Take1 - Validation Loss History](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-val-loss-history-plot.png)
-
-##### Network Diagram
-![Take1 - Network Diagram](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-network.png)
+<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-val-loss-history-plot.png" width="850" height="300">
 
 ##### Network Evaluation
 ![Take1 - IoU Evaluation](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-evaluation.png)
 
 ##### Segmentation Outputs
 
-*Hero close by*
-![Take1 - Hero Close By](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-close.png)
-
-*No hero*
-![Take1 - No Hero](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-no-hero.png)
-
-*Hero far away*
-![Take1 - Hero Far Away](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-far.png)
+<div>
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-close.png" width="290" height="290">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-no-hero.png" width="290" height="290">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-far.png" width="290" height="290">
+</div>
 
 #### 5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample / Nadam Optimzer
 
 *IoU Achieved: 43.65!*
 
-This was a deeper network (5 encoding layers and 5 decoding layers) than earlier, and consequently its filter depths varied from 32 to 512, depending on the layer, both for the encoder and decoder sections.
-
 I ran the training for ~60 epochs, though the network had almost fully saturated near ~30 epochs, as you can see in the validation loss graph below. Nevertheless, it appears there was still some marginal improvement going up to 60 epochs, which helped push the IoU metric to 0.436
 
-![Take2 - Validation Loss History](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-val-loss-history-plot.png)
-
-##### Network Diagram
-![Take2 - Network Diagram](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-network.png)
+<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-val-loss-history-plot.png" width="850" height="300">
 
 ##### Network Evaluation
 ![Take2 - IoU Evaluation](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-evaluation.png)
 
 ##### Segmentation Outputs
 
-*Hero close by*
-![Take2 - Hero Close By](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-hero-close.png)
-
-*No hero*
-![Take2 - No Hero](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-no-hero.png)
-
-*Hero far away*
-![Take2 - Hero Far Away](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-hero-far.png)
+<div>
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-hero-close.png" width="290" height="290">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-no-hero.png" width="290" height="290">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-hero-far.png" width="290" height="290">
+</div>
 
 #### 5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample / Adam Optimzer
 
@@ -296,37 +315,30 @@ This had the same architecture as the previous attempt, except that I switched t
 
 The network hit optimal performance on the test set around epoch # 64.
 
-![Take3 - Validation Loss History](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-val-loss-history-plot.png)
-
-##### Network Diagram
-
-Same as [above](#network-diagram-1)
+<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-val-loss-history-plot.png" width="850" height="300">
 
 ##### Network Evaluation
 ![Take3 - IoU Evaluation](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-evaluation.png)
 
 ##### Segmentation Outputs
 
-*Hero close by*
-![Take3 - Hero Close By](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-hero-close.png)
-
-*No hero*
-![Take3 - No Hero](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-no-hero.png)
-
-*Hero far away*
-![Take3 - Hero Far Away](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-hero-far.png)
+<div>
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-hero-close.png" width="290" height="290">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-no-hero.png" width="290" height="290">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-hero-far.png" width="290" height="290">
+</div>
 
 
 ## Other Use Cases
 
 This model, generally, would work with any kind of image segmentation task provided sufficient training data relevant to the problem being addressed.
 
-### Different Types of Objects
+### Different Classes
 The model in this case was trained with specific data pertaining to human beings - a hero and others - walking in a city-like environment (with roads, bridges, buildings, lawns etc). In other words, the model weights have been specifically tuned to recognize features pertaining to the categories that it was trained to recognize using the training data provided. As examples, the model probably uses the color of the clothing to distinguish between the hero and other people. Therefore, this trained model, as it stands, will not work for segmenting other classes of objects (like cats, dogs etc), or different environments. In fact, it will also fail if the test data were to present the hero in a different set of clothes.
 
 The model has learned features specific to the domain for which it was trained. Therefore, if provided sufficient training data for other domains, with 3 classes of objects in the segmentation, this model is likely to segment those images well too. However, there are some limitations there too ...
 
-### Different Number of Object Categories
+### Different Number of Classes
 One such limitation is that the model has been architected to address 3 classes of objects in this segmentation problem. If provided sufficient data, the model might still be trainable on a minor increase or decrease in the number of cateogories it is to classify pixels into. But, the model may not be able to train well for a vastly larger count of categories in the segmentation task.
 
 ### More Complex Environments
@@ -336,9 +348,9 @@ I also expect that, depending on the environments being processed, the network m
 
 To improve upon this network further, here are some additional tasks to be attempted.
 
-### Appropriately Balanced Training Data
+### Appropriately Balancing Training Data
 
-I have achieved the requisite rubric [https://review.udacity.com/#!/rubrics/1155/view] for this project by using the provided data itself, without any additional data generated from the simulator. However, collecting more data would likely be necessary to push the IoU higher for this project.
+I have achieved the requisite [rubric](https://review.udacity.com/#!/rubrics/1155/view) for this project by using the provided data itself, without any additional data generated from the simulator. However, collecting more data would likely be necessary to push the IoU higher for this project.
 
 More specifically, the training data was imbalanced, with the following percentages:
 - Hero close: ~9.5%
@@ -354,19 +366,17 @@ Therefore, in my view, an approximate distribution that would achieve better res
 
 I have obviously not tested this hypothesis, but it remains a future goal.
 
-### Different Kernel Sizes
-
-I have mostly focused on a kernel of size 3 in this project. A kernel of 5 not only deteriorated accuracy but also performance of the network during both training and inference. One way to optimize convolution with such a kernel is to insert a 1x1 convolution before it that reduces the dimensionality of the prior layer. This reduction in dimensionality dramatically reduces the number of trainable parameters when convolving the larger sized kernels.
-
 ### Using Inception Layers
 
-It is conceivable that using different sized kernels together might help find more relevant features for the segmentation task. The inception network targets just that scenario. If each encoder layer were an inception network, combining kernels of sizes 3, 5 and 7, in addition to a 1x1 convolution itself, as well as a maxpooling layer, we could achieve better accuracy. The degradation in performance from adding such large kernels can be worked around by inserting a 1x1 convolution to reduce the dimensionality of the prior layer before it is convolved with the associated kernel.
+I have mostly focused on a kernel of size 3 in this project, since a kernel of size 5 was not very effective for this problem. However, as a generic model, it would make more sense to use a mix of different kernel sizes in each of the convolution steps because that might help the network find a wider range of features and not only improve accuracy for the given network but more importantly for a wider range of classes.
 
-### Using Transposed Convolutions Instead of Biliniear Upsampling
+The degradation in performance from adding larger kernels can also be worked around by inserting a 1x1 convolution before each kernel, to reduce the dimensionality prior to convolution with that kernel thereby reducing the number of trainable parameters. The inception network does precisely that. If each encoder layer were an inception layer, combining kernels of sizes 3, 5 and 7, in addition to a 1x1 convolution and a maxpooling step, we could achieve better accuracy while also minimizing the associated performance penalty.
+
+### Transposed Convolutions Instead of Biliniear Upsampling
 
 In bilinear upsampling, the upsampled image is based purely on the input image. When using Transposed Convolutions, the relation between the input and upsampled image pixels can be learned by the network, thereby not only introducing additional non-linearities in the upsampling but also a more nuanced transformation relation between the pixels in the input and output. But for this same reason, this approach will also impact performance, both during training and also with inference. However, that can potentially be resolved by removing the 'same' padded convolution layers at each decoding layer, after the transposed convolution step. It is not clear to me which approach will produce better accuracy, but it is perhaps worth exploring.
 
-### Used TensorBoard for Hyperparemter Tuning
+### TensorBoard for Exhaustive Hyperparemter Tuning
 
 I could have used TensorBoard to compare various hyperparameter permutations, but did not on account of time constraints with getting familiar with all the TensorBoard tools and quirks.
 
@@ -376,4 +386,4 @@ I settled on a batch size of 32 since that was appropriate to the memory constra
 
 ## References
 
-No references to called out at the moment.
+No references to call out at the moment.
