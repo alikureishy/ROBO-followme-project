@@ -48,10 +48,16 @@
 		- [5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample / Adam Optimizer](#5-layer-encoder--5-layer-decoder--3-separable-convolutions-per-upsample--adam-optimzer)
 			- [Network Diagram](#network-diagram-2)
 			- [Network Evaluation](#network-evaluation-2)
-			- [Segmentation Outputs](#segmentation-outputs-2)
-			
+			- [Segmentation Outputs](#segmentation-outputs-2)			
 - [Other Use Cases](#other-use-cases)
+	- [Different Classes](#different-classes)
+	- [Different Number of Classes](#different-classes)
+	- [More Complex Environments](#more-complex-environments)
 - [Future Improvements](#future-improvements)
+	- [Appropriately Balancing Training Data](#appropriately-balancing-training-data)
+	- [Using Inception Layers](#using-inception-layers)
+	- [Transposed Convolutions Instead of Biliniear Upsampling](#transposed-convolutions-instead-of-bilinear-upsampling)
+	- [TensorBoard for Exhaustive Hyperparemter Tuning](#tensorboard-for-exhaustive-hyperparameter-tuning)
 - [References](#references)
 
 ## Overview
@@ -314,12 +320,12 @@ Same as [above](#network-diagram-1)
 
 This model, generally, would work with any kind of image segmentation task provided sufficient training data relevant to the problem being addressed.
 
-### Different Types of Objects
+### Different Classes
 The model in this case was trained with specific data pertaining to human beings - a hero and others - walking in a city-like environment (with roads, bridges, buildings, lawns etc). In other words, the model weights have been specifically tuned to recognize features pertaining to the categories that it was trained to recognize using the training data provided. As examples, the model probably uses the color of the clothing to distinguish between the hero and other people. Therefore, this trained model, as it stands, will not work for segmenting other classes of objects (like cats, dogs etc), or different environments. In fact, it will also fail if the test data were to present the hero in a different set of clothes.
 
 The model has learned features specific to the domain for which it was trained. Therefore, if provided sufficient training data for other domains, with 3 classes of objects in the segmentation, this model is likely to segment those images well too. However, there are some limitations there too ...
 
-### Different Number of Object Categories
+### Different Number of Classes
 One such limitation is that the model has been architected to address 3 classes of objects in this segmentation problem. If provided sufficient data, the model might still be trainable on a minor increase or decrease in the number of cateogories it is to classify pixels into. But, the model may not be able to train well for a vastly larger count of categories in the segmentation task.
 
 ### More Complex Environments
@@ -329,7 +335,7 @@ I also expect that, depending on the environments being processed, the network m
 
 To improve upon this network further, here are some additional tasks to be attempted.
 
-### Appropriately Balanced Training Data
+### Appropriately Balancing Training Data
 
 I have achieved the requisite rubric [https://review.udacity.com/#!/rubrics/1155/view] for this project by using the provided data itself, without any additional data generated from the simulator. However, collecting more data would likely be necessary to push the IoU higher for this project.
 
@@ -347,19 +353,17 @@ Therefore, in my view, an approximate distribution that would achieve better res
 
 I have obviously not tested this hypothesis, but it remains a future goal.
 
-### Different Kernel Sizes
-
-I have mostly focused on a kernel of size 3 in this project. A kernel of 5 not only deteriorated accuracy but also performance of the network during both training and inference. One way to optimize convolution with such a kernel is to insert a 1x1 convolution before it that reduces the dimensionality of the prior layer. This reduction in dimensionality dramatically reduces the number of trainable parameters when convolving the larger sized kernels.
-
 ### Using Inception Layers
 
-It is conceivable that using different sized kernels together might help find more relevant features for the segmentation task. The inception network targets just that scenario. If each encoder layer were an inception network, combining kernels of sizes 3, 5 and 7, in addition to a 1x1 convolution itself, as well as a maxpooling layer, we could achieve better accuracy. The degradation in performance from adding such large kernels can be worked around by inserting a 1x1 convolution to reduce the dimensionality of the prior layer before it is convolved with the associated kernel.
+I have mostly focused on a kernel of size 3 in this project, since a kernel of size 5 was not very effective for this problem. However, as a generic model, it would make more sense to use a mix of different kernel sizes in each of the convolution steps because that might help the network find a wider range of features and not only improve accuracy for the given network but more importantly for a wider range of classes.
 
-### Using Transposed Convolutions Instead of Biliniear Upsampling
+The degradation in performance from adding larger kernels can also be worked around by inserting a 1x1 convolution before each kernel, to reduce the dimensionality prior to convolution with that kernel thereby reducing the number of trainable parameters. The inception network does precisely that. If each encoder layer were an inception layer, combining kernels of sizes 3, 5 and 7, in addition to a 1x1 convolution and a maxpooling step, we could achieve better accuracy while also minimizing the associated performance penalty.
+
+### Transposed Convolutions Instead of Biliniear Upsampling
 
 In bilinear upsampling, the upsampled image is based purely on the input image. When using Transposed Convolutions, the relation between the input and upsampled image pixels can be learned by the network, thereby not only introducing additional non-linearities in the upsampling but also a more nuanced transformation relation between the pixels in the input and output. But for this same reason, this approach will also impact performance, both during training and also with inference. However, that can potentially be resolved by removing the 'same' padded convolution layers at each decoding layer, after the transposed convolution step. It is not clear to me which approach will produce better accuracy, but it is perhaps worth exploring.
 
-### Used TensorBoard for Hyperparemter Tuning
+### TensorBoard for Exhaustive Hyperparemter Tuning
 
 I could have used TensorBoard to compare various hyperparameter permutations, but did not on account of time constraints with getting familiar with all the TensorBoard tools and quirks.
 
@@ -369,4 +373,4 @@ I settled on a batch size of 32 since that was appropriate to the memory constra
 
 ## References
 
-No references to called out at the moment.
+No references to call out at the moment.
