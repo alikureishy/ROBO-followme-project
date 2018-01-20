@@ -36,6 +36,7 @@
 		- [Decoder](#decoder)
 		- [Output Layer](#output-layer)
 	- [Network Depth](#network-depth)
+	- [Final Architeture](#final-architecture)
 	- [Loss Function](#loss-function)
 	- [Optimizer](#optimizer)
 - [Results!](#-results)
@@ -248,6 +249,7 @@ Depths explored:
 	- filter depths ranging between 32 and 512, depending on the layer (later layers had deeper filters)
 	- IoU Achieved: 46.65%
 
+### Final Architecture
 The final architecture, with Depth-of-5, is illustrated here:
 ![Final Architecture](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-model.png)
 
