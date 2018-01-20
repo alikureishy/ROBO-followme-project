@@ -39,16 +39,10 @@
 	- [Network Depth](#network-depth)
 	- [Loss Function](#loss-function)
 	- [Optimizer](#optimizer)
-	- [Comparison Of Architectures](#comparison-of-architectures)
-		- [4-Layer Encoder / 4-Layer Decoder / 2-Separable Convolutions per Upsample / Nadam Optimizer](#4-layer-encoder--4-layer-decoder--2-separable-convolutions-per-upsample-nadam-optimizer)
-			- [Network Evaluation](#network-evaluation)
-			- [Segmentation Outputs](#segmentation-outputs)
-		- [5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample / Nadam Optimizer](#5-layer-encoder--5-layer-decoder--3-separable-convolutions-per-upsample-nadam-optimizer)
-			- [Network Evaluation](#network-evaluation-1)
-			- [Segmentation Outputs](#segmentation-outputs-1)
-		- [5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample / Adam Optimizer](#5-layer-encoder--5-layer-decoder--3-separable-convolutions-per-upsample--adam-optimzer)
-			- [Network Evaluation](#network-evaluation-2)
-			- [Segmentation Outputs](#segmentation-outputs-2)			
+- [Segmentation Results](#segmentation-results)
+	- [Validation Loss Graph](#validation-loss-graph)
+	- [Network Evaluation](#network-evaluation)
+	- [Segmentation Outputs](#segmentation-outputs)
 - [Other Use Cases](#other-use-cases)
 	- [Different Classes](#different-classes)
 	- [Different Number of Classes](#different-classes)
@@ -248,16 +242,15 @@ Depths explored:
 	- 4 encoding and 4 decoding layers
 	- 2 separable convolutions after each bilinear upsampling
 	- filter depths ranging between 32 and 256, depending on the layer (later layers had deeper filters)
+	- IoU Achieved: 41.6%
 - Depth-of-5:
 	- 5 encoding and 5 decoding layers
 	- 3 separable convolutions after each bilinear upsampling
 	- filter depths ranging between 32 and 512, depending on the layer (later layers had deeper filters)
+	- IoU Achieved: 46.65%
 
-These are illustrated here - the *Depth-of-4 on the left*, and *Depth-of-5 on the right*:
-<div>
-	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-model.png" width="400" height="200">
-	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-model.png" width="400" height="200">
-</div>
+The final architecture, with Depth-of-5, is illustrated here:
+<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-model.png" width="400" height="200">
 
 ### Loss Function
 
@@ -267,67 +260,25 @@ The loss function was the Cross-Entropy Loss over the output Softmax Activation 
 
 I started with an _Nadam_ optimizer based on input from fellow students on Slack (particularly as a form of regularization), but later settled on an _Adam_ optimizer after witnessing significantly better performance of the latter compared to the former, on the Depth-of-5 architecture.
 
-### Comparison Of Architectures
+## Segmentation Results
 
-#### 4-Layer Encoder / 4-Layer Decoder / 2-Separable Convolutions per Upsample / Nadam Optimzer
+The network hit optimal performance on the test set around epoch # 64, with an IoU of *_46.65%_*!
 
-*IoU Achieved: 41.6!*
-
-I ran the training for ~60 epochs, though the network had almost fully saturated near ~30 epochs, as you can see in the validation loss graph below. Nevertheless, it appears there was still some marginal improvement going up to 60 epochs, which helped push the IoU score above 0.40.
-
-<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-val-loss-history-plot.png" width="850" height="300">
-
-##### Network Evaluation
-![Take1 - IoU Evaluation](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-evaluation.png)
-
-##### Segmentation Outputs
-
-<div>
-	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-close.png" width="290" height="290">
-	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-no-hero.png" width="290" height="290">
-	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-far.png" width="290" height="290">
-</div>
-
-#### 5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample / Nadam Optimzer
-
-*IoU Achieved: 43.65!*
-
-I ran the training for ~60 epochs, though the network had almost fully saturated near ~30 epochs, as you can see in the validation loss graph below. Nevertheless, it appears there was still some marginal improvement going up to 60 epochs, which helped push the IoU metric to 0.436
-
-<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-val-loss-history-plot.png" width="850" height="300">
-
-##### Network Evaluation
-![Take2 - IoU Evaluation](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-evaluation.png)
-
-##### Segmentation Outputs
-
-<div>
-	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-hero-close.png" width="290" height="290">
-	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-no-hero.png" width="290" height="290">
-	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-hero-far.png" width="290" height="290">
-</div>
-
-#### 5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample / Adam Optimzer
-
-*IoU Achieved: 46.67!*
-
-This had the same architecture as the previous attempt, except that I switched to an Adam optimizer (which was actually the optimizer that the default training code had been using in the project skeleton).
-
-The network hit optimal performance on the test set around epoch # 64.
+### Validation Loss Graph
+Here is the graph of the validation loss seen at the end of every epoch, until epoch #64.
 
 <img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-val-loss-history-plot.png" width="850" height="300">
 
-##### Network Evaluation
+### Network Evaluation
 ![Take3 - IoU Evaluation](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-evaluation.png)
 
-##### Segmentation Outputs
+### Segmentation Outputs
 
 <div>
 	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-hero-close.png" width="290" height="290">
 	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-no-hero.png" width="290" height="290">
 	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-hero-far.png" width="290" height="290">
 </div>
-
 
 ## Other Use Cases
 
