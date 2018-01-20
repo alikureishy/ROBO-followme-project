@@ -245,6 +245,8 @@ This was achieved using a network with 4 encoder layers and 4 decoder layers. Fi
 <img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-val-loss-history-plot.png" width="850" height="300">
 
 ##### Network Diagram
+https://www.youtube.com/watch?v=8f2lOxsCDHM
+
 ![Take1 - Network Diagram](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-network.png)
 
 ##### Network Evaluation
