@@ -37,6 +37,7 @@
 		- [Decoder](#decoder)
 		- [Output Layer](#output-layer)
 	- [Network Depth](#network-depth)
+	- [Loss Function](#loss-function)
 	- [Optimizer](#optimizer)
 	- [Comparison Of Architectures](#comparison-of-architectures)
 		- [4-Layer Encoder / 4-Layer Decoder / 2-Separable Convolutions per Upsample / Nadam Optimizer](#4-layer-encoder--4-layer-decoder--2-separable-convolutions-per-upsample-nadam-optimizer)
@@ -176,6 +177,9 @@ Here is a side-by-side illustration of the validation loss for the two learning 
 #### Batch Size
 On my local machine, where I started the training attempts, a batch size of 32 seemed more appropriate given the memory constraints of the system. I could theoretically try increasing the batch size when I moved over to AWS, but I did not attempt that since the performance was satisfactory with the chosen batchsize.
 
+#### Batches Per Epoch
+
+
 #### Number of Epochs
 
 Training using a learning rate of 0.001, and the aforementioned [network depth](#network-depth-of-encoding-decoding-layers) would seemingly saturate after around ~10-15 epochs, but consistently fell short of the target IoU metric of 40%. However, if left to train for several more iterations, there was sufficient improvement (though excruciatingly incremental) with each additional epoch for the network to satisfy the >40% IoU metric. I ran all these networks for 60 epochs in total.
@@ -253,6 +257,9 @@ These are illustrated here - the *Depth-of-4 on the left*, and *Depth-of-5 on th
 	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-model.png" width="400" height="200">
 	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-model.png" width="400" height="200">
 </div>
+
+### Loss Function
+
 
 ### Optimizer
 
