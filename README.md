@@ -333,8 +333,6 @@ I could have used TensorBoard to compare various hyperparameter permutations, bu
 
 I settled on a batch size of 32 since that was appropriate to the memory constraints of my home use laptop. This could potentially have been increased when training was done on the GPU instances on AWS.
 
-
-
 ## References
 
 No references to call out at the moment.
