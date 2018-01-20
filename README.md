@@ -60,7 +60,7 @@
 - [References](#references)
 
 ## Overview
-This is an Image Segmentation project built as part of Udacity's 'Robotics Nanodegree Term 1' curriculum. It involves training a deep neural network using a Fully Convolutional Network, as well as various other mechanisms - such as Skip Connections, 1x1 Convolutions etc - to detect a person-of-interest from images captured by a Follow-Me drone, the purpose eventually being to be able to train a drone to follow-along with that person as they go jogging, walking etc. It was evaluated [https://review.udacity.com/#!/rubrics/1155/view] based on its IoU (Intersection-over-Union) performance on a provided test set.
+This is an Image Segmentation project built as part of Udacity's 'Robotics Nanodegree Term 1' curriculum. It involves training a deep neural network using a Fully Convolutional Network, as well as various other mechanisms - such as Skip Connections, 1x1 Convolutions etc - to detect a person-of-interest from images captured by a Follow-Me drone, the purpose eventually being to be able to train a drone to follow-along with that person as they go jogging, walking etc. It was [evaluated](https://review.udacity.com/#!/rubrics/1155/view) based on its IoU (Intersection-over-Union) performance on a provided test set.
 
 The folder hierarchy is as follows:
 ```
@@ -141,7 +141,7 @@ The drone could then use the CoG of the blue pixels in the segmented image to fo
 
 ### Simulator
 
-A simulator was provided with the project to merely collect 'real-world' data in the event that the data included with the project was not sufficient. This was not used in this project however, as the provided data proved sufficient to satisfy the [rubric [https://review.udacity.com/#!/rubrics/1155/view]].
+A simulator was provided with the project to merely collect 'real-world' data in the event that the data included with the project was not sufficient. This was not used in this project however, as the provided data proved sufficient to satisfy the [rubric](https://review.udacity.com/#!/rubrics/1155/view).
 
 ## Training
 
@@ -341,7 +341,7 @@ To improve upon this network further, here are some additional tasks to be attem
 
 ### Appropriately Balancing Training Data
 
-I have achieved the requisite rubric [https://review.udacity.com/#!/rubrics/1155/view] for this project by using the provided data itself, without any additional data generated from the simulator. However, collecting more data would likely be necessary to push the IoU higher for this project.
+I have achieved the requisite [rubric](https://review.udacity.com/#!/rubrics/1155/view) for this project by using the provided data itself, without any additional data generated from the simulator. However, collecting more data would likely be necessary to push the IoU higher for this project.
 
 More specifically, the training data was imbalanced, with the following percentages:
 - Hero close: ~9.5%
