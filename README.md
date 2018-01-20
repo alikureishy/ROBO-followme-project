@@ -30,6 +30,9 @@
 		- [Data Filteration](#data-filteration)
 		- [Batch Normalization](#batch-normalization)
 - [Network Architecture](#network-architecture)
+	- [Techniques Used](#techniques-used)
+		- [Fully Convolutional Networks](#fully-convolutional-networks)
+		- [Skip Connections](#skip-connections)
 	- [Components](#components)
 		- [Encoder](#encoder)
 		- [1x1 Convolution](#1x1-convolution)
@@ -209,9 +212,19 @@ Batch Normalization was applied to the output of every convolution step in the n
 
 ## Network Architecture
 
-This segmentation network is a _Fully Convolutional_ network. Fully Convolutional networks are well suited for segmentation tasks because in such networks, spatial information is retained all through the network, and is essential for the generation of the new (segmented) image that gets output by the network. The network goes through an _encoding_ phase, wherein more and more features are extracted from the input image as it gets progressively 'squeezed'. Then, when all the relevant information is held purely as features, the _decoding_ phase generates the image step by step in the same fashion as it was deconstructed in the encoding phase. In the case of merely an object classification network, the deep set of features available at the end of the encoding phase can be fed into a _Fully Connected_ network which spits out categorical information that is devoid of any spatial information at that point. Contrary to this, in the decoding phase of a Fully Convolutional Network, that spatial information is _retained_ through the rest of the network, through a progressive sequence of Convolutional layers rather than Fully Connected layers.
+### Techniques Used
+
+#### Fully Convolutional Networks
+
+This segmentation network is a _Fully Convolutional_ network. Fully Convolutional networks are well suited for segmentation tasks because in such networks, spatial information is processed through the network, and is essential for the generation of the new (segmented) image that gets output by the network. The network goes through an _encoding_ phase, wherein finer grained features are extracted from the input image as it gets progressively 'squeezed'. Then, when all the relevant information is held as fine grained features, the _decoding_ phase generates the image step by step in the same fashion as it was deconstructed in the encoding phase. In the case of merely an object classification network, the deep set of features available at the end of the encoding phase can be fed into a _Fully Connected_ network which spits out categorical information that is devoid of any spatial information at that point. Contrary to this, in the decoding phase of a Fully Convolutional Network, that spatial information is _retained_ through the rest of the network, through a progressive sequence of Convolutional layers rather than Fully Connected layers.
+
+#### Skip Connections
+
+One disadvantage of the decoding phase in a fully convolutional network is that we _do lose some_ of the coarser grained features (the 'big picture'), since we are progressively trading image size for finer grained features. This drawback is resolved by using a technique called _Skip Connections_. Skip connections allow us to retain the coarser grained features from prior layers and use them in conjunction with the finer grained features while recreating an image from subsequent layers.
 
 ### Components
+
+We now dive deeper into the specific components of the network.
 
 #### Encoder
 
@@ -230,8 +243,6 @@ In this project, the 1x1 convolution used between the encoder and decoder serves
 Understandably, the decoding layer does the opposite of the encoder -- converts smaller feature tensors into larger ones, while reducing the feature count at the same time. The decoder layer then outputs a softmax activation for each pixel across the number of classes being segmented out of the original image, which essentially ends up being an image of the same X and Y dimensions, and possibly a different set of channels.
 
 To produce larger feature tensors, each decoding layer includes a _Bilinear Upsampling layer_ (doubling the image size in both x and y dimensions), followed then by a concatenation of _Skip Connections_ from its corresponding encoding layer with the same feature tensor shape, followed then by 2 _Separable Convolution Layers_ to add non-linearity and more nuanced feature-of-feature extraction.
-
-The reason for using Skip Connections is that, as we progress through the encoding layer, we do lose some of the coarser grained features, since we are progressively trading image size for finer grained features. Skip connections allow us to retain the coarser grained features from prior layers and use them in conjunction with the finer grained features while recreating an image.
 
 #### Output Layer
 
