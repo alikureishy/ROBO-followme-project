@@ -253,9 +253,9 @@ This was achieved using a network with 4 encoder layers and 4 decoder layers. Fi
 ##### Segmentation Outputs
 
 <div>
-	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-close.png" width="300" height="300">
-	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-no-hero.png" width="300" height="300">
-	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-far.png" width="300" height="300">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-close.png" width="290" height="290">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-no-hero.png" width="290" height="290">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-far.png" width="290" height="290">
 </div>
 
 #### 5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample / Nadam Optimzer
@@ -277,9 +277,9 @@ I ran the training for ~60 epochs, though the network had almost fully saturated
 ##### Segmentation Outputs
 
 <div>
-	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-hero-close.png" width="300" height="300">
-	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-no-hero.png" width="300" height="300">
-	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-hero-far.png" width="300" height="300">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-hero-close.png" width="290" height="290">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-no-hero.png" width="290" height="290">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-hero-far.png" width="290" height="290">
 </div>
 
 #### 5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample / Adam Optimzer
@@ -302,9 +302,9 @@ Same as [above](#network-diagram-1)
 ##### Segmentation Outputs
 
 <div>
-	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-hero-close.png" width="300" height="300">
-	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-no-hero.png" width="300" height="300">
-	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-hero-far.png" width="300" height="300">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-hero-close.png" width="290" height="290">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-no-hero.png" width="290" height="290">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-hero-far.png" width="290" height="290">
 </div>
 
 
