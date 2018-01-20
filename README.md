@@ -92,17 +92,19 @@ The folder hierarchy is as follows:
 
 ### AWS
 
-Training was done on a p2.xlarge (GPU-Compute) EC2 instance on AWS, which performed brilliantly, achieving almost a 10x improvement in training time. The _Udacity Robotics Deep Learning Laboratory (ami-e4fd199e) AMI_ was used, as below:
+Training was done on a p2.xlarge (GPU-Compute) EC2 instance on AWS, which performed brilliantly, achieving a 10x-15x reduction in training time. The _Udacity Robotics Deep Learning Laboratory (ami-e4fd199e) AMI_ was used, as shown below:
 
 ![AWS AMI](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/aws-ami.png)
 
-During training, I was able to max out the GPU usage on this machine as well, as suggested by this output from the command-line ```nvidia-smi'' command:
+During training, I was able to max out the GPU usage on this machine as well, as suggested by this output from the command-line ```nvidia-smi``` command:
 
 <img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/gpu-utilization.png" width="900" height="250">
 
+One issue I faced was with getting the plotting of the keras model to work. [This youtube video](https://www.youtube.com/watch?v=8f2lOxsCDHM) helped explain how to resolve that problem.
+
 ### Jupyter Notebook Server
 
-This goes without saying. Nevertheless, on an EC2 instance (as mentioned above), the command to launch the Jupyter server is:
+On an EC2 instance (as mentioned above), the command to launch the Jupyter server was:
 ```
     jupyter notebook --ip='*' --port=8888 --no-browser
 ```
@@ -247,8 +249,6 @@ Depths explored:
 	- filter depths ranging between 32 and 512, depending on the layer (later layers had deeper filters)
 
 These are illustrated here - the *Depth-of-4 on the left*, and *Depth-of-5 on the right*:
-https://www.youtube.com/watch?v=8f2lOxsCDHM
-
 <div>
 	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-model.png" width="400" height="200">
 	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-model.png" width="400" height="200">
