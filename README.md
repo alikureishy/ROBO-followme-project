@@ -179,10 +179,11 @@ On my local machine, where I started the training attempts, a batch size of 32 s
 
 #### Batches Per Epoch
 
+With a batch size of 32, and a total training set size of 4131, there would need to be 160 batches per epoch. I chose one epoch to be the process of going through the entire training set once through.
 
 #### Number of Epochs
 
-Training using a learning rate of 0.001, and the aforementioned [network depth](#network-depth-of-encoding-decoding-layers) would seemingly saturate after around ~10-15 epochs, but consistently fell short of the target IoU metric of 40%. However, if left to train for several more iterations, there was sufficient improvement (though excruciatingly incremental) with each additional epoch for the network to satisfy the >40% IoU metric. I ran all these networks for 60 epochs in total.
+Training using a learning rate of 0.001, and the chosen [network depth](#network-depth) would appear to largely saturate after around ~15 epochs, but consistently fell short of the target IoU metric of 40%. However, if left to train for ~50-60 epochs, there was still sufficient improvement (though infinitesimally small) with each additional epoch for the network to satisfy the >40% IoU metric. Running the [network](#network-depth) for ~60 epochs yielded an IoU of 46.65!
 
 ### Training Hooks (Callbacks)
 
@@ -236,7 +237,7 @@ To produce larger feature tensors, each decoding layer includes a _Bilinear Upsa
 
 #### Output Layer
 
-In the case of the network in question, the output of the image would be a 160x160x3 tensor. It so happens that the 3 classes above, through a softmax activation layer, could be trivially translated to the 3 RGB channels, which is why the 3 types of scenes (hero close, hero far, and no hero) were given equivalence to the 3 specific RGB colors. Had there been more classes of images, or a different color mapping, a separate conversion would have been needed at the output layer, to convert the softmax activations into an appropriate 3-channel RGB value so as to produce an appropriately segmented output image.
+In the case of the network in question, the output of the image would be a 160x160x3 tensor retrieved through a softmax activation layer. It so happens that the 3 classes above could be trivially paired with the 3 RGB channels, which is why the 3 types of scenes (hero close, hero far, and no hero) were given exact equivalence to the RGB color channels -- i.e, RGB channel values of [0,0,255], [0,255,0] or [255,0,0]. Had there been more classes of objects to be detected (say 'n'), a separate conversion step (for example, classes 1 and 3 with RGB channel mappings of [0,128, 255] and [15, 180, 150] respectvively) would have been needed at the output layer, to convert the 'n' softmax activations (across n-classes) into an appropriate distribution over the 3 RGB channels so as to produce a discernable segmentation output.
 
 ### Network Depth
 
@@ -260,6 +261,7 @@ These are illustrated here - the *Depth-of-4 on the left*, and *Depth-of-5 on th
 
 ### Loss Function
 
+The loss function was the Cross-Entropy Loss over the output Softmax Activation layer. Since the expected y-value of a 3-class segmentation for a given pixel would be one of [0,0,1], [0,1,0] or [1,0,0], for this problem space, the closer the softmax activation would be to these values, obviously the lower the cross entropy loss. The resulting loss calculated for the entire segmented image would be the average cross-entropy loss of the softmax activation vector over all of the pixels in that image. Typical cross-entropy loss values for the validation set by a trained network were seen to be in the 0.01 - 0.04 range. Values above 0.05 would almost certainly not achieve the desired IoU score on the test set.
 
 ### Optimizer
 
