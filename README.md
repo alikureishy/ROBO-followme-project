@@ -45,7 +45,7 @@
 			- [Network Diagram](#network-diagram-1)
 			- [Network Evaluation](#network-evaluation-1)
 			- [Segmentation Outputs](#segmentation-outputs-1)
-		- [5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample / Nadam Optimizer](#5-layer-encoder--5-layer-decoder--3-separable-convolutions-per-upsample--adam-optimzer)
+		- [5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample / Adam Optimizer](#5-layer-encoder--5-layer-decoder--3-separable-convolutions-per-upsample--adam-optimzer)
 			- [Network Diagram](#network-diagram-2)
 			- [Network Evaluation](#network-evaluation-2)
 			- [Segmentation Outputs](#segmentation-outputs-2)
@@ -150,11 +150,11 @@ In the following sections, I discuss the hyperparameters I tweaked, before I set
 
 I started with a learning rate of 0.01, which was too high because the training and validation losses fluctuated a lot during training. I reduced that to 0.001, which proved to be sufficient to produce a smooth asymptotic training loss curve, and a reasonably smooth validation loss curve too, before stopping the training.
 
-Here is a side-by-side illustration of the validation loss for the two learning rates used (all else being equal):
+Here is a side-by-side illustration of the validation loss for the two learning rates used (all else being equal). Left is with 0.01, right with 0.001. Notice the sawtooth-like curve with the 0.01 learning rate.
 
 <div>
-	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-val-loss-history-plot.png" width="450" height="200">
-	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/lr_0_01_val_loss_history.png" width="450" height="200">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/lr_0_01_val_loss_history.png" width="400" height="200">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-val-loss-history-plot.png" width="400" height="200">
 </div>
 
 #### Batch Size
@@ -242,7 +242,7 @@ These hyperparameters were common to both topologies that were explored.
 
 This was achieved using a network with 4 encoder layers and 4 decoder layers. Filter depths varied from 32 to 256, depending on the layer, both for the encoder and decoder sections. Each decoding layer included an upsampling layer (doubling the image size in both x and y dimensions), followed by a concatenation of a skip connection input from its corresponding encoding layer, followed then by 2 separable convolution layers. I ran the training for ~60 epochs, though the network had almost fully saturated near ~30 epochs, as you can see in the validation loss graph below. Nevertheless, it appears there was still some marginal improvement going up to 60 epochs, which helped push the IoU score above 0.40.
 
-![Take1 - Validation Loss History](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-val-loss-history-plot.png)
+<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-val-loss-history-plot.png" width="850" height="300">
 
 ##### Network Diagram
 ![Take1 - Network Diagram](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-network.png)
@@ -252,14 +252,11 @@ This was achieved using a network with 4 encoder layers and 4 decoder layers. Fi
 
 ##### Segmentation Outputs
 
-*Hero close by*
-![Take1 - Hero Close By](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-close.png)
-
-*No hero*
-![Take1 - No Hero](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-no-hero.png)
-
-*Hero far away*
-![Take1 - Hero Far Away](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-far.png)
+<div>
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-close.png" width="300" height="300">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-no-hero.png" width="300" height="300">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take1-hero-far.png" width="300" height="300">
+</div>
 
 #### 5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample / Nadam Optimzer
 
@@ -269,7 +266,7 @@ This was a deeper network (5 encoding layers and 5 decoding layers) than earlier
 
 I ran the training for ~60 epochs, though the network had almost fully saturated near ~30 epochs, as you can see in the validation loss graph below. Nevertheless, it appears there was still some marginal improvement going up to 60 epochs, which helped push the IoU metric to 0.436
 
-![Take2 - Validation Loss History](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-val-loss-history-plot.png)
+<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-val-loss-history-plot.png" width="850" height="300">
 
 ##### Network Diagram
 ![Take2 - Network Diagram](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-network.png)
@@ -279,14 +276,11 @@ I ran the training for ~60 epochs, though the network had almost fully saturated
 
 ##### Segmentation Outputs
 
-*Hero close by*
-![Take2 - Hero Close By](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-hero-close.png)
-
-*No hero*
-![Take2 - No Hero](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-no-hero.png)
-
-*Hero far away*
-![Take2 - Hero Far Away](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-hero-far.png)
+<div>
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-hero-close.png" width="300" height="300">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-no-hero.png" width="300" height="300">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take2-hero-far.png" width="300" height="300">
+</div>
 
 #### 5-Layer Encoder / 5-Layer Decoder / 3-Separable Convolutions per Upsample / Adam Optimzer
 
@@ -296,7 +290,7 @@ This had the same architecture as the previous attempt, except that I switched t
 
 The network hit optimal performance on the test set around epoch # 64.
 
-![Take3 - Validation Loss History](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-val-loss-history-plot.png)
+<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-val-loss-history-plot.png" width="850" height="300">
 
 ##### Network Diagram
 
@@ -307,14 +301,11 @@ Same as [above](#network-diagram-1)
 
 ##### Segmentation Outputs
 
-*Hero close by*
-![Take3 - Hero Close By](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-hero-close.png)
-
-*No hero*
-![Take3 - No Hero](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-no-hero.png)
-
-*Hero far away*
-![Take3 - Hero Far Away](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-hero-far.png)
+<div>
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-hero-close.png" width="300" height="300">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-no-hero.png" width="300" height="300">
+	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-hero-far.png" width="300" height="300">
+</div>
 
 
 ## Other Use Cases
