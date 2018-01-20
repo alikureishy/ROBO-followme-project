@@ -22,7 +22,7 @@
 		- [Batch Size](#batch-size)
 		- [Batches Per Epoch](#batches-per-epoch)
 		- [Number of Epochs](#number-of-epochs)
-	- [Training Hooks](#training-hooks-(callbacks))
+	- [Training Hooks](#training-hooks-callbacks)
 		- [Preexisting](#preexisting)
 		- [Custom](#custom)
 	- [Regularization](#regularization)
@@ -230,7 +230,7 @@ To produce larger feature tensors, each decoding layer includes a _Bilinear Upsa
 
 #### Output Layer
 
-In the case of the network in question, the output of the image would be a 160x160x3 tensor retrieved through a softmax activation layer. It so happens that the 3 classes above could be trivially paired with the 3 RGB channels, which is why the 3 types of scenes (hero close, hero far, and no hero) were given exact equivalence to the RGB color channels -- i.e, RGB channel values of [0,0,255], [0,255,0] or [255,0,0]. Had there been more classes of objects to be detected (say 'n'), a separate conversion step (for example, classes 1 and 3 with RGB channel mappings of [0,128, 255] and [15, 180, 150] respectvively) would have been needed at the output layer, to convert the 'n' softmax activations (across n-classes) into an appropriate distribution over the 3 RGB channels so as to produce a discernable segmentation output.
+In the case of the network in question, the output of the image is a 160x160x3 tensor retrieved through a _convolution layer_ followed by a softmax activation. It so happens that the 3 classes above could be trivially paired with the 3 RGB channels, which is why the 3 types of scenes (hero close, hero far, and no hero) were given exact equivalence to the RGB color channels -- i.e, RGB channel values of [0,0,255], [0,255,0] or [255,0,0]. Had there been more classes of objects to be detected (say 'n'), a separate conversion step (for example, classes 1 and 3 with RGB channel mappings of [0,128, 255] and [15, 180, 150] respectvively) would have been needed at the output layer, to convert the 'n' softmax activations (across n-classes) into an appropriate distribution over the 3 RGB channels so as to produce a discernable segmentation output.
 
 ### Network Depth
 
