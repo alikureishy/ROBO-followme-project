@@ -33,6 +33,7 @@ import numpy as np
 import json
 import matplotlib.patches as mpatches 
 import matplotlib.pyplot as plt
+from utils import model_tools
 from tensorflow.contrib.keras.python import keras
 from scipy import misc
 
@@ -173,5 +174,4 @@ class LoggerPlotter(keras.callbacks.Callback):
         # Unfortunately this same step will be repeated each time we end an epoch
         # because there's no way to know which the last epoch will be
         if self.model is not None and self.arch_file_path is not None:
-            with open(self.arch_file_path, "w+") as arch_file:
-                json.dump(self.model_arch_json, arch_file)
+            model_tools.save_architecture(self.model, self.arch_file_path)

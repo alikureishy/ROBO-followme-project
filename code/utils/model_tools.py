@@ -10,7 +10,23 @@ def make_dir_if_not_exist(path):
     if not os.path.exists(path):
         os.makedirs(path)
 
+def save_architecture(model, arch_file_path):
+    arch_data = model.to_json()
+    with open(arch_file_path, 'w') as file:
+        json.dump(arch_data, file)
 
+def load_architecture(arch_file_path):
+    if os.path.exists(arch_file_path):
+        with open(arch_file_path, 'r') as file:
+            arch_data = json.load(file)
+            assert arch_data is not None, "Architecture data was empty"
+        model = keras.models.model_from_json(arch_data)
+        assert model is not None, "Null model returned from keras' model_from_json utility"
+        return model
+    else:
+        raise ValueError('No architecture file found at {}'.format(arch_file_path))
+
+"""
 def save_network(your_model, your_weight_filename):
     config_name = 'config' + '_' + your_weight_filename
     weight_path = os.path.join('..', 'data', 'weights', your_weight_filename)
@@ -22,7 +38,7 @@ def save_network(your_model, your_weight_filename):
         
     your_model.save_weights(weight_path) 
         
-        
+
 def load_network(your_weight_filename):
     config_name = 'config' + '_' + your_weight_filename
     weight_path = os.path.join('..', 'data', 'weights', your_weight_filename)
@@ -42,7 +58,7 @@ def load_network(your_weight_filename):
         return your_model
     else:
         raise ValueError('No weight file found at {}'.format(weight_path))
-
+"""
 
 def write_predictions_grade_set(model, grading_dir_name, subset_name, out_folder_suffix):
     validation_path = os.path.join('..', 'data', 'masks', grading_dir_name, subset_name)
