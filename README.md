@@ -209,25 +209,29 @@ Batch Normalization was applied to the output of every convolution step in the n
 
 ## Network Architecture
 
-I compared the performance of 3 network architectures, all of which passed the IoU metric, but I have ranked them by increasing IoU score and outlined the results [here](#comparison-of-architectures).
-
-Fully _Convolutional_ networks are well suited for segmentation tasks because they do not suffer from the loss of spatial information inherent in Fully _Connected_ Networks. The network comprises of an encoder, followed then by a decoder.
+This segmentation network is a _Fully Convolutional_ network. Fully Convolutional networks are well suited for segmentation tasks because in such networks, spatial information is retained all through the network, and is essential for the generation of the new (segmented) image that gets output by the network. The network goes through an _encoding_ phase, wherein more and more features are extracted from the input image as it gets progressively 'squeezed'. Then, when all the relevant information is held purely as features, the _decoding_ phase generates the image step by step in the same fashion as it was deconstructed in the encoding phase. In the case of merely an object classification network, the deep set of features available at the end of the encoding phase can be fed into a _Fully Connected_ network which spits out categorical information that is devoid of any spatial information at that point. Contrary to this, in the decoding phase of a Fully Convolutional Network, that spatial information is _retained_ through the rest of the network, through a progressive sequence of Convolutional layers rather than Fully Connected layers.
 
 ### Components
 
 #### Encoder
 
-The encoder layers gradually reduce the size of each feature tensor passing through the network, while increasing the number of features it extracts at each layer. 
+The encoder layers gradually reduce the size of each feature tensor passing through the network, while increasing the number of features it extracts at each layer.
 
 #### 1x1 Convolution
 
-A 1x1 convolution in the middle adds a layer of non-linearity to the network before the decoder starts. It can also serve to increase or decrease the number of features extracted from the last layer of the encoder.
+1x1 convolutions are useful in the following scenarios:
+- A 1x1 convolution in the middle adds a layer of non-linearity to the network before the decoder starts. It can also serve to increase or decrease the number of features extracted from the last layer of the encoder.
+- One would use a 1x1 convolution to reduce the number of trainable parameters, for convolutions with large sized-kernels, for example, by reducing the dimensionality of input tensor before it is fed into the regular convolution. This dimensionality reduction, in practice, does not impact the accuracy or trainability of the resulting convolution step.
+
+In this project, the 1x1 convolution used between the encoder and decoder serves only the purpose of adding a layer of non-linearity to the network to improve trainability. However, it is not being used for either reducing or increasing dimensionality at this point, as should be apparent from the [network model](#final-architecture).
 
 #### Decoder
 
 Understandably, the decoding layer does the opposite of the encoder -- converts smaller feature tensors into larger ones, while reducing the feature count at the same time. The decoder layer then outputs a softmax activation for each pixel across the number of classes being segmented out of the original image, which essentially ends up being an image of the same X and Y dimensions, and possibly a different set of channels.
 
 To produce larger feature tensors, each decoding layer includes a _Bilinear Upsampling layer_ (doubling the image size in both x and y dimensions), followed then by a concatenation of _Skip Connections_ from its corresponding encoding layer with the same feature tensor shape, followed then by 2 _Separable Convolution Layers_ to add non-linearity and more nuanced feature-of-feature extraction.
+
+The reason for using Skip Connections is that, as we progress through the encoding layer, we do lose some of the coarser grained features, since we are progressively trading image size for finer grained features. Skip connections allow us to retain the coarser grained features from prior layers and use them in conjunction with the finer grained features while recreating an image.
 
 #### Output Layer
 
