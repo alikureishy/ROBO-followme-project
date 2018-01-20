@@ -38,7 +38,7 @@
 	- [Network Depth](#network-depth)
 	- [Loss Function](#loss-function)
 	- [Optimizer](#optimizer)
-- [Segmentation Results](#segmentation-results)
+- [Results!](#-results)
 	- [Validation Loss Graph](#validation-loss-graph)
 	- [Network Evaluation](#network-evaluation)
 	- [Segmentation Outputs](#segmentation-outputs)
@@ -259,9 +259,12 @@ The loss function was the Cross-Entropy Loss over the output Softmax Activation 
 
 I started with an _Nadam_ optimizer based on input from fellow students on Slack (particularly as a form of regularization), but later settled on an _Adam_ optimizer after witnessing significantly better performance of the latter compared to the former, on the Depth-of-5 architecture.
 
-## Segmentation Results
+## Results
 
-The [network](network-depth) hit optimal performance on the test set around epoch # 64, with an IoU of *_46.65%_*!
+The [network](network-depth) hit optimal performance on the test set around epoch # 64, with an IoU of:
+```
+          46.65%!
+```
 
 ### Validation Loss Graph
 Here is the graph of the validation loss seen at the end of every epoch, until epoch #64.
