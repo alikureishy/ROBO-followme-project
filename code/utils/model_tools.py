@@ -27,8 +27,8 @@ def load_architecture(arch_file_path):
         raise ValueError('No architecture file found at {}'.format(arch_file_path))
 
 def load_network(arch_file_path, weights_file_path):
-    assert os.path.is_file(arch_file_path)), "{} does not exist, or is not a file".format(arch_file_path)
-    assert os.path.is_file(weights_file_path)), "{} does not exist, or is not a file".format(weights_file_path)
+    assert os.path.is_file(arch_file_path), "{} does not exist, or is not a file".format(arch_file_path)
+    assert os.path.is_file(weights_file_path), "{} does not exist, or is not a file".format(weights_file_path)
     model = load_architecture(arch_file_path)
     model.load_weights(weights_file_path)
     return model

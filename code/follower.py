@@ -27,12 +27,15 @@
 
 # Author: Brandon Kinman
 
+print ("Loading imports 1...")
 import eventlet.wsgi
 import socketio
 import time
+print ("Loading imports 2...")
 
 from flask import Flask
 from threading import Thread
+print ("Loading imports 3...")
 
 # Needs to be sorted through
 import argparse
@@ -44,27 +47,31 @@ import tensorflow as tf
 from PIL import Image
 from io import BytesIO
 from scipy import misc
+print ("Loading imports 4...")
 
 from transforms3d.euler import euler2mat, mat2euler
 from tensorflow.contrib.keras.python import keras
 from utils import separable_conv2d
+print ("Loading imports 5...")
 
 from utils import data_iterator
 from utils import visualization
 from utils import scoring_utils
 from utils import sio_msgs
 from utils import model_tools
+print ("Loading imports 6...")
 
 import time
 
 import signal
 import sys
+print ("Loading imports 7...")
 
 
 # Create socketio server and Flask app
 sio = socketio.Server()
 app = Flask(__name__)
-
+print ("Creating a socket server and flask app...")
 
 def to_radians(deg_ang):
     return deg_ang * (math.pi / 180)
@@ -197,22 +204,22 @@ def sio_server():
 
 if __name__ == '__main__':
     # wrap Flask application with socketio's middleware
+    print ("Starting...")
     app = socketio.Middleware(sio, app)
 
+    print ("Parsing cmd-line arguments...")
     parser = argparse.ArgumentParser()
-
-    parser.add_argument('architecture_file',
+    parser.add_argument('arch_file',
                         help='The model architecture (.json) file for loading the model')
-
     parser.add_argument('weights_file',
                         help='The model weights (.hd5) file to use for inference')
-
     parser.add_argument('--pred_viz',
                         action='store_true',
                         help='display live overlay visualization with prediction regions')
-
     args = parser.parse_args()
-    model = model_tools.load_network(args.architecture_file, args.weights_file)
+    
+    print ("Loading the model...")
+    model = model_tools.load_network(args.arch_file, args.weights_file)
     image_hw = model.layers[0].output_shape[1]
 
     if args.pred_viz: 
