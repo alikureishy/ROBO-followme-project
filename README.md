@@ -11,6 +11,7 @@
 - [Environment & Setup](#environment-and-setup)
 	- [AWS](#aws)
 	- [Jupyter Notebook Server](#jupyter-notebook-server)
+	- [Local Machine Setup](#local-machine-setup)
 - [Data](#data)
 	- [Inputs](#inputs)
 		- [Provided Data](#provided-data)
@@ -46,6 +47,7 @@
 	- [Validation Loss Graph](#validation-loss-graph)
 	- [Network Evaluation](#network-evaluation)
 	- [Segmentation Outputs](#segmentation-outputs)
+	- [Deploying To The Simulator](#deploying-to-the-simulator)
 - [Other Use Cases](#other-use-cases)
 	- [Different Classes](#different-classes)
 	- [Different Number of Classes](#different-classes)
@@ -106,6 +108,29 @@ On an EC2 instance (as mentioned above), the command to launch the Jupyter serve
 ```
     jupyter notebook --ip='*' --port=8888 --no-browser
 ```
+
+No conda environment needs to be activated to launch jupyter. Just cd to the repository and launch this command. The AMI above has all the necessary libraries pre-installed without needing conda.
+
+### Local Machine Setup
+
+The local machine setup requires following [these instructions](https://github.com/udacity/RoboND-Python-StarterKit/blob/master/doc/configure_via_anaconda.md).
+
+After finishing those setup steps, invoke the following on the command line:
+```
+source activate RoboND
+pip install tensorflow==1.2.1
+pip install socketIO-client
+pip install transforms3d
+pip install PyQt5
+pip install pyqtgraph
+```
+
+The environment should now be ready to launch the jupyter notebook locally, for which just launch:
+```
+jupyter notebook
+```
+
+See the [deployment](#deploying-to-the-simulator) section for information on running the simulator.
 
 ## Data
 
@@ -302,6 +327,21 @@ Here are the segmentation outputs of this network. From left to right - hero clo
 	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-no-hero.png" width="290" height="290">
 	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-hero-far.png" width="290" height="290">
 </div>
+
+### Deploying To The Simulator
+
+Please follow these steps to deploy the trained [model](https://github.com/safdark/ROBO-followme-project/blob/master/data/weights/architecture.json) and [weights](https://github.com/safdark/ROBO-followme-project/blob/master/data/weights/weights.hd5) files to the simulator:
+
+```
+1. Launch the Quad Simulator
+2. Check the "Spawn eople" checkbox and then click on "Follow Me"
+3. From the command line, activate the RoboND conda [environment](#)
+4. Navigate to the root of this repository, then cd to the code folder.
+5. Launch:
+   	python follower.py ../data/weights/architecture.json ../data/weights/weights.hd5 --pred_viz
+6. Switch back to the Quad Simulator and watch the drone eventually find the hero and start following behind her.
+
+I will post a video of the simulated drone on youtube soon.
 
 ## Other Use Cases
 
