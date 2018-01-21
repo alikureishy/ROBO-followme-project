@@ -60,7 +60,7 @@
 - [References](#references)
 
 ## Overview
-This is an Image Segmentation project built as part of Udacity's 'Robotics Nanodegree Term 1' curriculum. It involves training a deep neural network using a Fully Convolutional Network, as well as various other mechanisms - such as Skip Connections, 1x1 Convolutions etc - to detect a person-of-interest from images captured by a Follow-Me drone, the purpose eventually being to be able to train a drone to follow-along with that person as they go jogging, walking etc. It was [evaluated](https://review.udacity.com/#!/rubrics/1155/view) based on its IoU (Intersection-over-Union) performance on a provided test set.
+This is an Image Segmentation project built as part of Udacity's 'Robotics Nanodegree Term 1' curriculum. It involves training a deep neural network using a Fully Convolutional Network, as well as various other mechanisms - such as Skip Connections, 1x1 Convolutions etc - to detect a person-of-interest from images captured by a Follow-Me drone, the purpose eventually being to be able to guide a drone to follow-along with that person as they go jogging, walking etc. It was [evaluated](https://review.udacity.com/#!/rubrics/1155/view) based on its IoU (Intersection-over-Union) performance on a provided test set, but can be deployed to the simulated drone to validate its effectiveness as well.
 
 The folder hierarchy is as follows:
 ```
@@ -140,7 +140,7 @@ The network would be fed 160x160x3-pixel images (scenes) of a simulated world, a
 
 There are three types of images included as training data:
 - _Images containing the hero nearby_: For incremental adjustments of the drone's guidance system
-- _Images containing the hero far away_: For helping a drone get back-on-track in case it falls behind
+- _Images containing the hero far away_: For helping the drone get back-on-track in case it falls behind
 - _Images containing no hero at all_: Presumably to have the drone remain stationary and patrol its surroundings until one of the above two images is encountered
 
 #### Provided Data
@@ -162,7 +162,7 @@ The objective was to train the network to output a segmented image of the same d
 - _Generic person (Green pixels)_: These are all other people in the scene who are *not* the 'hero'
 - _Surroundings (Red pixels)_: A catch-all category that includes everything else such as grass, road surfaces, buildings, sky etc.
 
-The drone could then use the CoG of the blue pixels in the segmented image to follow behind the hero. Ultimately this DNN could therefore be used in an actual follow-me-drone implementation, but would of course require numerous other components that are outside the scope of this project.
+The drone then uses the CoG of the blue pixels in the segmented output image to follow behind the hero.
 
 ### Simulator
 
