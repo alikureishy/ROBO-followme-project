@@ -334,8 +334,8 @@ Please follow these steps to deploy the trained [model](https://github.com/safda
 
 ```
 1. Launch the Quad Simulator
-2. Check the "Spawn eople" checkbox and then click on "Follow Me"
-3. From the command line, activate the RoboND conda [environment](#)
+2. Check the "Spawn people" checkbox and then click on "Follow Me"
+3. From the command line, activate the RoboND conda [environment](#local-machine-setup)
 4. Navigate to the root of this repository, then cd to the code folder.
 5. Launch:
    	python follower.py ../data/weights/architecture.json ../data/weights/weights.hd5 --pred_viz
