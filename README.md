@@ -1,5 +1,5 @@
 # Image Segmentation - Person Detection (Follow-Me Project)
-![Overview](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/image-2.png)
+![Overview](https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/follow-me.png)
 
 <!-- Side-by-side images:
         ![alt-text-1](image1.png "title-1") ![alt-text-2](image2.png "title-2")
