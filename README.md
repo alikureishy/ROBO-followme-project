@@ -12,11 +12,11 @@
 	- [AWS](#aws)
 	- [Jupyter Notebook Server](#jupyter-notebook-server)
 	- [Local Machine Setup](#local-machine-setup)
+	- [Simulator](#simulator)
 - [Data](#data)
 	- [Inputs](#inputs)
 		- [Provided Data](#provided-data)
 	- [Expected Output](#expected-output)
-	- [Simulator](#simulator)
 - [Training](#training)
 	- [Hyperparameter Tuning](#hyperparameter-tuning)
 		- [Learning Rate](#learning-rate)
@@ -132,6 +132,10 @@ jupyter notebook
 
 See the [deployment](#deploying-to-the-simulator) section for information on running the simulator.
 
+### Simulator
+
+A [simulator](https://github.com/udacity/RoboND-DeepLearning-Project/releases/latest) was provided with the project to merely collect 'real-world' data in the event that the data included with the project was not sufficient. This was not used in this project however, as the provided data proved sufficient to satisfy the [rubric](https://review.udacity.com/#!/rubrics/1155/view).
+
 ## Data
 
 ### Inputs
@@ -163,10 +167,6 @@ The objective was to train the network to output a segmented image of the same d
 - _Surroundings (Red pixels)_: A catch-all category that includes everything else such as grass, road surfaces, buildings, sky etc.
 
 The drone then uses the CoG of the blue pixels in the segmented output image to follow behind the hero.
-
-### Simulator
-
-A simulator was provided with the project to merely collect 'real-world' data in the event that the data included with the project was not sufficient. This was not used in this project however, as the provided data proved sufficient to satisfy the [rubric](https://review.udacity.com/#!/rubrics/1155/view).
 
 ## Training
 
