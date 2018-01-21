@@ -340,6 +340,7 @@ Please follow these steps to deploy the trained [model](https://github.com/safda
 5. Launch:
    	python follower.py ../data/weights/architecture.json ../data/weights/weights.hd5 --pred_viz
 6. Switch back to the Quad Simulator and watch the drone eventually find the hero and start following behind her.
+```
 
 I will post a video of the simulated drone on youtube soon.
 
