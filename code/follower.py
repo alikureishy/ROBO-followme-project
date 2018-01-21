@@ -27,15 +27,12 @@
 
 # Author: Brandon Kinman
 
-print ("Loading imports 1...")
 import eventlet.wsgi
 import socketio
 import time
-print ("Loading imports 2...")
 
 from flask import Flask
 from threading import Thread
-print ("Loading imports 3...")
 
 # Needs to be sorted through
 import argparse
@@ -47,31 +44,25 @@ import tensorflow as tf
 from PIL import Image
 from io import BytesIO
 from scipy import misc
-print ("Loading imports 4...")
 
 from transforms3d.euler import euler2mat, mat2euler
 from tensorflow.contrib.keras.python import keras
 from utils import separable_conv2d
-print ("Loading imports 5...")
 
 from utils import data_iterator
 from utils import visualization
 from utils import scoring_utils
 from utils import sio_msgs
 from utils import model_tools
-print ("Loading imports 6...")
 
 import time
-
 import signal
 import sys
-print ("Loading imports 7...")
-
 
 # Create socketio server and Flask app
+print ("Creating a socket server and flask app...")
 sio = socketio.Server()
 app = Flask(__name__)
-print ("Creating a socket server and flask app...")
 
 def to_radians(deg_ang):
     return deg_ang * (math.pi / 180)
@@ -228,6 +219,7 @@ if __name__ == '__main__':
     else:
         queue = None
 
+    print ("Creating the follower...")
     follower = Follower(image_hw, model, args.pred_viz, queue)
     # start eventlet server
     
