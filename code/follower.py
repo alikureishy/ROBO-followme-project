@@ -201,17 +201,18 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('weight_file',
-                        help='The model file to use for inference')
+    parser.add_argument('architecture_file',
+                        help='The model architecture (.json) file for loading the model')
 
+    parser.add_argument('weights_file',
+                        help='The model weights (.hd5) file to use for inference')
 
     parser.add_argument('--pred_viz',
                         action='store_true',
                         help='display live overlay visualization with prediction regions')
 
     args = parser.parse_args()
-
-    model = model_tools.load_network(args.weight_file)
+    model = model_tools.load_network(args.architecture_file, args.weights_file)
     image_hw = model.layers[0].output_shape[1]
 
     if args.pred_viz: 
