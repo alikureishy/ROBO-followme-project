@@ -26,6 +26,13 @@ def load_architecture(arch_file_path):
     else:
         raise ValueError('No architecture file found at {}'.format(arch_file_path))
 
+def load_network(arch_file_path, weights_file_path):
+    assert os.path.is_file(arch_file_path)), "{} does not exist, or is not a file".format(arch_file_path)
+    assert os.path.is_file(weights_file_path)), "{} does not exist, or is not a file".format(weights_file_path)
+    model = load_architecture(arch_file_path)
+    model.load_weights(weights_file_path)
+    return model
+        
 """
 def save_network(your_model, your_weight_filename):
     config_name = 'config' + '_' + your_weight_filename
