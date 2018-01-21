@@ -11,6 +11,7 @@
 - [Environment & Setup](#environment-and-setup)
 	- [AWS](#aws)
 	- [Jupyter Notebook Server](#jupyter-notebook-server)
+	- [Local Machine Setup](#local-machine-setup)
 - [Data](#data)
 	- [Inputs](#inputs)
 		- [Provided Data](#provided-data)
@@ -46,6 +47,7 @@
 	- [Validation Loss Graph](#validation-loss-graph)
 	- [Network Evaluation](#network-evaluation)
 	- [Segmentation Outputs](#segmentation-outputs)
+	- [Deploying To The Simulator](#deploying-to-the-simulator)
 - [Other Use Cases](#other-use-cases)
 	- [Different Classes](#different-classes)
 	- [Different Number of Classes](#different-classes)
@@ -58,7 +60,7 @@
 - [References](#references)
 
 ## Overview
-This is an Image Segmentation project built as part of Udacity's 'Robotics Nanodegree Term 1' curriculum. It involves training a deep neural network using a Fully Convolutional Network, as well as various other mechanisms - such as Skip Connections, 1x1 Convolutions etc - to detect a person-of-interest from images captured by a Follow-Me drone, the purpose eventually being to be able to train a drone to follow-along with that person as they go jogging, walking etc. It was [evaluated](https://review.udacity.com/#!/rubrics/1155/view) based on its IoU (Intersection-over-Union) performance on a provided test set.
+This is an Image Segmentation project built as part of Udacity's 'Robotics Nanodegree Term 1' curriculum. It involves training a deep neural network using a Fully Convolutional Network, as well as various other mechanisms - such as Skip Connections, 1x1 Convolutions etc - to detect a person-of-interest from images captured by a Follow-Me drone, the purpose eventually being to be able to guide a drone to follow-along with that person as they go jogging, walking etc. It was [evaluated](https://review.udacity.com/#!/rubrics/1155/view) based on its IoU (Intersection-over-Union) performance on a provided test set, but can be deployed to the simulated drone to validate its effectiveness as well.
 
 The folder hierarchy is as follows:
 ```
@@ -107,6 +109,29 @@ On an EC2 instance (as mentioned above), the command to launch the Jupyter serve
     jupyter notebook --ip='*' --port=8888 --no-browser
 ```
 
+No conda environment needs to be activated to launch jupyter. Just cd to the repository and launch this command. The AMI above has all the necessary libraries pre-installed without needing conda.
+
+### Local Machine Setup
+
+The local machine setup requires following [these instructions](https://github.com/udacity/RoboND-Python-StarterKit/blob/master/doc/configure_via_anaconda.md).
+
+After finishing those setup steps, invoke the following on the command line:
+```
+source activate RoboND
+pip install tensorflow==1.2.1
+pip install socketIO-client
+pip install transforms3d
+pip install PyQt5
+pip install pyqtgraph
+```
+
+The environment should now be ready to launch the jupyter notebook locally, for which just launch:
+```
+jupyter notebook
+```
+
+See the [deployment](#deploying-to-the-simulator) section for information on running the simulator.
+
 ## Data
 
 ### Inputs
@@ -115,7 +140,7 @@ The network would be fed 160x160x3-pixel images (scenes) of a simulated world, a
 
 There are three types of images included as training data:
 - _Images containing the hero nearby_: For incremental adjustments of the drone's guidance system
-- _Images containing the hero far away_: For helping a drone get back-on-track in case it falls behind
+- _Images containing the hero far away_: For helping the drone get back-on-track in case it falls behind
 - _Images containing no hero at all_: Presumably to have the drone remain stationary and patrol its surroundings until one of the above two images is encountered
 
 #### Provided Data
@@ -137,7 +162,7 @@ The objective was to train the network to output a segmented image of the same d
 - _Generic person (Green pixels)_: These are all other people in the scene who are *not* the 'hero'
 - _Surroundings (Red pixels)_: A catch-all category that includes everything else such as grass, road surfaces, buildings, sky etc.
 
-The drone could then use the CoG of the blue pixels in the segmented image to follow behind the hero. Ultimately this DNN could therefore be used in an actual follow-me-drone implementation, but would of course require numerous other components that are outside the scope of this project.
+The drone then uses the CoG of the blue pixels in the segmented output image to follow behind the hero.
 
 ### Simulator
 
@@ -302,6 +327,22 @@ Here are the segmentation outputs of this network. From left to right - hero clo
 	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-no-hero.png" width="290" height="290">
 	<img src="https://github.com/safdark/ROBO-followme-project/blob/master/docs/images/take3-hero-far.png" width="290" height="290">
 </div>
+
+### Deploying To The Simulator
+
+Please follow these steps to deploy the trained [model](https://github.com/safdark/ROBO-followme-project/blob/master/data/weights/architecture.json) and [weights](https://github.com/safdark/ROBO-followme-project/blob/master/data/weights/weights.hd5) files to the simulator:
+
+```
+1. Launch the Quad Simulator
+2. Check the "Spawn people" checkbox and then click on "Follow Me"
+3. From the command line, activate the RoboND conda [environment](#local-machine-setup)
+4. Navigate to the root of this repository, then cd to the code folder.
+5. Launch:
+   	python follower.py ../data/weights/architecture.json ../data/weights/weights.hd5 --pred_viz
+6. Switch back to the Quad Simulator and watch the drone eventually find the hero and start following behind her.
+```
+
+I will post a video of the simulated drone on youtube soon.
 
 ## Other Use Cases
 
