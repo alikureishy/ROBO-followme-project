@@ -30,6 +30,9 @@
 		- [Data Filteration](#data-filteration)
 		- [Batch Normalization](#batch-normalization)
 - [Network Architecture](#network-architecture)
+	- [Techniques Used](#techniques-used)
+		- [Fully Convolutional Networks](#fully-convolutional-networks)
+		- [Skip Connections](#skip-connections)
 	- [Components](#components)
 		- [Encoder](#encoder)
 		- [1x1 Convolution](#1x1-convolution)
@@ -209,19 +212,31 @@ Batch Normalization was applied to the output of every convolution step in the n
 
 ## Network Architecture
 
-I compared the performance of 3 network architectures, all of which passed the IoU metric, but I have ranked them by increasing IoU score and outlined the results [here](#comparison-of-architectures).
+### Techniques Used
 
-Fully _Convolutional_ networks are well suited for segmentation tasks because they do not suffer from the loss of spatial information inherent in Fully _Connected_ Networks. The network comprises of an encoder, followed then by a decoder.
+#### Fully Convolutional Networks
+
+This segmentation network is a _Fully Convolutional_ network. Fully Convolutional networks are well suited for segmentation tasks because in such networks, spatial information is processed through the network, and is essential for the generation of the new (segmented) image that gets output by the network. The network goes through an _encoding_ phase, wherein finer grained features are extracted from the input image as it gets progressively 'squeezed'. Then, when all the relevant information is held as fine grained features, the _decoding_ phase generates the image step by step in the same fashion as it was deconstructed in the encoding phase. In the case of merely an object classification network, the deep set of features available at the end of the encoding phase can be fed into a _Fully Connected_ network which spits out categorical information that is devoid of any spatial information at that point. Contrary to this, in the decoding phase of a Fully Convolutional Network, that spatial information is _retained_ through the rest of the network, through a progressive sequence of Convolutional layers rather than Fully Connected layers.
+
+#### Skip Connections
+
+One disadvantage of the decoding phase in a fully convolutional network is that we _do lose some_ of the coarser grained features (the 'big picture'), since we are progressively trading image size for finer grained features. This drawback is resolved by using a technique called _Skip Connections_. Skip connections allow us to retain the coarser grained features from prior layers and use them in conjunction with the finer grained features while recreating an image from subsequent layers.
 
 ### Components
 
+We now dive deeper into the specific components of the network.
+
 #### Encoder
 
-The encoder layers gradually reduce the size of each feature tensor passing through the network, while increasing the number of features it extracts at each layer. 
+The encoder layers gradually reduce the size of each feature tensor passing through the network, while increasing the number of features it extracts at each layer.
 
 #### 1x1 Convolution
 
-A 1x1 convolution in the middle adds a layer of non-linearity to the network before the decoder starts. It can also serve to increase or decrease the number of features extracted from the last layer of the encoder.
+1x1 convolutions are useful in the following scenarios:
+- A 1x1 convolution in the middle adds a layer of non-linearity to the network before the decoder starts. It can also serve to increase or decrease the number of features extracted from the last layer of the encoder.
+- One would use a 1x1 convolution to reduce the number of trainable parameters, for convolutions with large sized-kernels, for example, by reducing the dimensionality of input tensor before it is fed into the regular convolution. This dimensionality reduction, in practice, does not impact the accuracy or trainability of the resulting convolution step.
+
+In this project, the 1x1 convolution used between the encoder and decoder serves only the purpose of adding a layer of non-linearity to the network to improve trainability. However, it is not being used for either reducing or increasing dimensionality at this point, as should be apparent from the [network model](#final-architecture).
 
 #### Decoder
 
@@ -267,6 +282,8 @@ The [network](network-depth) hit optimal performance on the test set around epoc
 ```
           46.65%!
 ```
+
+Here are the optimally trained and loadable [weights file](https://github.com/safdark/ROBO-followme-project/blob/master/data/weights/weights.hd5) and [architecture file](https://github.com/safdark/ROBO-followme-project/blob/master/data/weights/architecture.json) files for this network. Please use the load_architecture() API in the [model_tools.py file](https://github.com/safdark/ROBO-followme-project/blob/master/code/utils/model_tools.py) to load the architecture file. The weights file can be loaded using the model.load_weights() API once you've constructed the model from the load_architecture() API.
 
 ### Validation Loss Graph
 Here is the graph of the validation loss seen at the end of every epoch, until epoch #64.
