@@ -121,7 +121,7 @@ class Follower(object):
         if rgb_image.shape[0] != self.image_hw:
             rgb_image = misc.imresize(rgb_image, (self.image_hw, self.image_hw, 3))
 
-        rgb_image = data_iterator.preprocess_input(rgb_image)
+        rgb_image = data_iterator.standardize(rgb_image)
         pred = np.squeeze(model.predict(np.expand_dims(rgb_image, 0)))
 
         if self.pred_viz_enabled:
